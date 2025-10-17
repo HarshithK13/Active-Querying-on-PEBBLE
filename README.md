@@ -83,3 +83,4 @@ Experiments can be reproduced with the following:
 
 note: full hyper-paramters for meta-world will be updated soon!
 
+# Active-Querying-on-PEBBLE
