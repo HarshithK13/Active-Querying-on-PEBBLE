@@ -1,0 +1,3 @@
+params:
+  hidden_dim: 256
+  hidden_depth: 2

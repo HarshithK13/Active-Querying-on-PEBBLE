@@ -19,17 +19,86 @@ from collections import deque
 import utils
 import hydra
 
+try:
+    import wandb
+except Exception:
+    wandb = None
+
+
 class Workspace(object):
     def __init__(self, cfg):
         self.work_dir = os.getcwd()
         print(f'workspace: {self.work_dir}')
 
         self.cfg = cfg
+
+        # --- W&B init (optional, controlled by Hydra cfg.wandb.*) ---
+        self.wandb_run = None
+        if getattr(cfg, "wandb", None) and getattr(cfg.wandb, "enabled", True) and wandb is not None:
+            from omegaconf import OmegaConf
+
+            wb_mode   = getattr(cfg.wandb, "mode", "online")
+            wb_proj   = getattr(cfg.wandb, "project", "Active_Querying_Techniques")
+            wb_entity = getattr(cfg.wandb, "entity", "Uniform Sampling")
+            wb_group  = getattr(cfg.wandb, "group", "Uniform Sampling") or cfg.env
+            wb_name   = getattr(cfg.wandb, "name", None) or f"{cfg.env}-{cfg.seed}"
+
+            wb_cfg = OmegaConf.to_container(cfg, resolve=True)
+
+            # before (likely)
+            # self.wandb_run = wandb.init(
+            #     project="BPref_Active_Querying",
+            #     group="Original Sampling",
+            #     name=str(cfg.seed),            # <- int! causes ValidationError
+            #     config=OmegaConf.to_container(cfg, resolve=True), job_type = "eval"
+            # )
+
+            # after
+            scheme_map = {
+                0: "Uniform",
+                1: "Disagreement",
+                2: "Entropy",
+                3: "KCenter",
+                4: "KCenter_Disagree",
+                5: "KCenter_Entropy",
+            }
+            scheme = scheme_map.get(getattr(cfg, "feed_type", None), "Baseline")
+            run_name = f"{scheme}_{cfg.seed}" 
+            self.wandb_run = wandb.init(
+                project="BPref_Active_Querying",
+                group="Disagreement",
+                name=run_name,
+                config=OmegaConf.to_container(cfg, resolve=True),
+                reinit=True,  # optional but handy for repeated runs in same process
+            )
+
+            try:
+                wandb.define_metric("step")
+                wandb.define_metric("*", step_metric="step")
+            except Exception:
+                pass
+
+
+
+
         self.logger = Logger(
             self.work_dir,
             save_tb=cfg.log_save_tb,
             log_frequency=cfg.log_frequency,
-            agent=cfg.agent.name)
+            agent="sac",
+        )
+
+        # Mirror logger logs to W&B with a global "step"
+        if self.wandb_run is not None:
+            _orig_log = self.logger.log
+            def _wb_log(tag, value, step):
+                try:
+                    wandb.log({tag: value, "step": step})
+                except Exception:
+                    pass
+                return _orig_log(tag, value, step)
+            self.logger.log = _wb_log
+
 
         utils.set_seed_everywhere(cfg.seed)
         self.device = torch.device(cfg.device)
@@ -48,7 +117,17 @@ class Workspace(object):
             float(self.env.action_space.low.min()),
             float(self.env.action_space.high.max())
         ]
-        self.agent = hydra.utils.instantiate(cfg.agent)
+#         agent_cfg = cfg.agent
+# # Expand params as kwargs so SACAgent(**params) is called, and avoid passing a `params=` kwarg.
+#         from omegaconf import OmegaConf
+
+        from omegaconf import OmegaConf
+
+        agent_cfg = cfg.agent
+        # Resolve interpolations and convert nested DictConfigs to plain dicts
+        agent_params = OmegaConf.to_container(agent_cfg.params, resolve=True)
+        self.agent = hydra.utils.instantiate({"_target_": agent_cfg._target_}, **agent_params)
+
 
         self.replay_buffer = ReplayBuffer(
             self.env.observation_space.shape,
@@ -125,45 +204,51 @@ class Workspace(object):
         self.logger.dump(self.step)
     
     def learn_reward(self, first_flag=0):
-                
-        # get feedbacks
-        labeled_queries, noisy_queries = 0, 0
-        if first_flag == 1:
-            # if it is first time to get feedback, need to use random sampling
-            labeled_queries = self.reward_model.uniform_sampling()
-        else:
-            if self.cfg.feed_type == 0:
+        feed_type = getattr(self.cfg, "feed_type", None)
+        no_sampling = feed_type is None 
+
+        labeled_queries = 0
+        if no_sampling:
+            print("Baseline!")
+        if not no_sampling:
+            if first_flag == 1:
                 labeled_queries = self.reward_model.uniform_sampling()
-            elif self.cfg.feed_type == 1:
-                labeled_queries = self.reward_model.disagreement_sampling()
-            elif self.cfg.feed_type == 2:
-                labeled_queries = self.reward_model.entropy_sampling()
-            elif self.cfg.feed_type == 3:
-                labeled_queries = self.reward_model.kcenter_sampling()
-            elif self.cfg.feed_type == 4:
-                labeled_queries = self.reward_model.kcenter_disagree_sampling()
-            elif self.cfg.feed_type == 5:
-                labeled_queries = self.reward_model.kcenter_entropy_sampling()
             else:
-                raise NotImplementedError
-        
-        self.total_feedback += self.reward_model.mb_size
+                if self.cfg.feed_type == 0:
+                    labeled_queries = self.reward_model.uniform_sampling()
+                elif self.cfg.feed_type == 1:
+                    labeled_queries = self.reward_model.disagreement_sampling()
+                elif self.cfg.feed_type == 2:
+                    labeled_queries = self.reward_model.entropy_sampling()
+                elif self.cfg.feed_type == 3:
+                    labeled_queries = self.reward_model.kcenter_sampling()
+                elif self.cfg.feed_type == 4:
+                    labeled_queries = self.reward_model.kcenter_disagree_sampling()
+                elif self.cfg.feed_type == 5:
+                    labeled_queries = self.reward_model.kcenter_entropy_sampling()
+                else:
+                    raise NotImplementedError
+        else:
+            labeled_queries = 0
+
+        self.total_feedback += labeled_queries
         self.labeled_feedback += labeled_queries
-        
+
         train_acc = 0
         if self.labeled_feedback > 0:
-            # update reward
             for epoch in range(self.cfg.reward_update):
                 if self.cfg.label_margin > 0 or self.cfg.teacher_eps_equal > 0:
                     train_acc = self.reward_model.train_soft_reward()
                 else:
                     train_acc = self.reward_model.train_reward()
                 total_acc = np.mean(train_acc)
-                
                 if total_acc > 0.97:
-                    break;
-                    
-        print("Reward function is updated!! ACC: " + str(total_acc))
+                    break
+
+            print("Reward function is updated!! ACC: " + str(total_acc))
+        else:
+            print("No labeled feedback available; reward not updated.")
+
 
     def run(self):
         episode, episode_reward, done = 0, 0, True
@@ -315,8 +400,35 @@ class Workspace(object):
             
         self.agent.save(self.work_dir, self.step)
         self.reward_model.save(self.work_dir, self.step)
+        # --- W&B artifacts + graceful finish ---
+        if self.wandb_run is not None:
+            try:
+                art = wandb.Artifact(f"{self.cfg.env}-pebble-models", type="model")
+
+                # common saved files (add if they exist)
+                candidates = [
+                    os.path.join(self.work_dir, f"actor_{self.step}.pt"),
+                    os.path.join(self.work_dir, f"critic_{self.step}.pt"),
+                    os.path.join(self.work_dir, f"critic_target_{self.step}.pt"),
+                    os.path.join(self.work_dir, f"reward_{self.step}.pt"),
+                ]
+                for p in candidates:
+                    if os.path.exists(p):
+                        art.add_file(p)
+
+                wandb.log_artifact(art)
+            except Exception:
+                pass
+            finally:
+                try:
+                    wandb.finish()
+                except Exception:
+                    pass
+
         
-@hydra.main(config_path='config/train_PEBBLE.yaml', strict=True)
+@hydra.main(version_base=None, config_path='config', config_name='train_PEBBLE')
+
+
 def main(cfg):
     workspace = Workspace(cfg)
     workspace.run()

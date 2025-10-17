@@ -5,10 +5,19 @@ import torch.nn.functional as F
 import math
 import utils
 import hydra
-
+import copy
 from agent import Agent
 from agent.critic import DoubleQCritic
 from agent.actor import DiagGaussianActor
+
+from omegaconf import DictConfig
+
+def _maybe_instantiate(x):
+    # If it's a config dict/DictConfig with _target_, instantiate; else return as-is
+    if isinstance(x, (dict, DictConfig)):
+        return hydra.utils.instantiate(x)
+    return x
+
 
 def compute_state_entropy(obs, full_obs, k):
     batch_size = 500
@@ -57,11 +66,18 @@ class SACAgent(Agent):
         self.actor_betas = actor_betas
         self.alpha_lr = alpha_lr
         
-        self.critic = hydra.utils.instantiate(critic_cfg).to(self.device)
-        self.critic_target = hydra.utils.instantiate(critic_cfg).to(
-            self.device)
+        self.critic_cfg = critic_cfg
+        self.actor_cfg = actor_cfg
+
+        self.critic = _maybe_instantiate(critic_cfg).to(self.device)
+        self.critic_target = _maybe_instantiate(critic_cfg).to(self.device)
         self.critic_target.load_state_dict(self.critic.state_dict())
-        self.actor = hydra.utils.instantiate(actor_cfg).to(self.device)
+        self.actor = _maybe_instantiate(actor_cfg).to(self.device)
+
+        # keep templates for reset when cfgs came in as prebuilt objects
+        self._critic_template = copy.deepcopy(self.critic)
+        self._actor_template = copy.deepcopy(self.actor)
+
         self.log_alpha = torch.tensor(np.log(init_temperature)).to(self.device)
         self.log_alpha.requires_grad = True
         
@@ -86,32 +102,63 @@ class SACAgent(Agent):
         self.train()
         self.critic_target.train()
     
+    # def reset_critic(self):
+    #     self.critic = hydra.utils.instantiate(self.critic_cfg).to(self.device)
+    #     self.critic_target = hydra.utils.instantiate(self.critic_cfg).to(
+    #         self.device)
+    #     self.critic_target.load_state_dict(self.critic.state_dict())
+    #     self.critic_optimizer = torch.optim.Adam(
+    #         self.critic.parameters(),
+    #         lr=self.critic_lr,
+    #         betas=self.critic_betas)
+    
+    # def reset_actor(self):
+    #     # reset log_alpha
+    #     self.log_alpha = torch.tensor(np.log(self.init_temperature)).to(self.device)
+    #     self.log_alpha.requires_grad = True
+    #     self.log_alpha_optimizer = torch.optim.Adam(
+    #         [self.log_alpha],
+    #         lr=self.alpha_lr,
+    #         betas=self.alpha_betas)
+        
+    #     # reset actor
+    #     self.actor = hydra.utils.instantiate(self.actor_cfg).to(self.device)
+    #     self.actor_optimizer = torch.optim.Adam(
+    #         self.actor.parameters(),
+    #         lr=self.actor_lr,
+    #         betas=self.actor_betas)
+        
     def reset_critic(self):
-        self.critic = hydra.utils.instantiate(self.critic_cfg).to(self.device)
-        self.critic_target = hydra.utils.instantiate(self.critic_cfg).to(
-            self.device)
+        if isinstance(self.critic_cfg, (dict, DictConfig)):
+            self.critic = _maybe_instantiate(self.critic_cfg).to(self.device)
+            self.critic_target = _maybe_instantiate(self.critic_cfg).to(self.device)
+        else:
+            self.critic = copy.deepcopy(self._critic_template).to(self.device)
+            self.critic_target = copy.deepcopy(self._critic_template).to(self.device)
         self.critic_target.load_state_dict(self.critic.state_dict())
         self.critic_optimizer = torch.optim.Adam(
-            self.critic.parameters(),
-            lr=self.critic_lr,
-            betas=self.critic_betas)
-    
+            self.critic.parameters(), lr=self.critic_lr, betas=self.critic_betas
+        )
+
     def reset_actor(self):
-        # reset log_alpha
+        # reset temperature
         self.log_alpha = torch.tensor(np.log(self.init_temperature)).to(self.device)
         self.log_alpha.requires_grad = True
         self.log_alpha_optimizer = torch.optim.Adam(
-            [self.log_alpha],
-            lr=self.alpha_lr,
-            betas=self.alpha_betas)
-        
+            [self.log_alpha], lr=self.alpha_lr, betas=self.alpha_betas
+        )
         # reset actor
-        self.actor = hydra.utils.instantiate(self.actor_cfg).to(self.device)
+        if isinstance(self.actor_cfg, (dict, DictConfig)):
+            self.actor = _maybe_instantiate(self.actor_cfg).to(self.device)
+        else:
+            self.actor = copy.deepcopy(self._actor_template).to(self.device)
         self.actor_optimizer = torch.optim.Adam(
-            self.actor.parameters(),
-            lr=self.actor_lr,
-            betas=self.actor_betas)
-        
+            self.actor.parameters(), lr=self.actor_lr, betas=self.actor_betas
+        )
+
+
+
+
     def train(self, training=True):
         self.training = training
         self.actor.train(training)

@@ -13,7 +13,7 @@ import time
 
 from scipy.stats import norm
 
-device = 'cuda'
+device = 'cpu'
 
 def gen_net(in_size=1, out_size=1, H=128, n_layers=3, activation='tanh'):
     net = []

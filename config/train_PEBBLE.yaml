@@ -1,6 +1,8 @@
 defaults:
-    - agent: sac
-    
+  - _self_
+  - agent: sac
+  - diag_gaussian_actor: base
+
 # this needs to be specified manually
 experiment: PEBBLE
 
@@ -13,7 +15,7 @@ num_interact: 5000
 reward_lr: 0.0003
 reward_batch: 128
 reward_update: 200
-feed_type: 0
+feed_type: null
 reset_update: 100
 topK: 5
 ensemble_size: 3
@@ -35,17 +37,17 @@ replay_buffer_capacity: ${num_train_steps}
 # evaluation config
 eval_frequency: 10000
 num_eval_episodes: 10
-device: cuda
+device: cpu
 
 # logger
 log_frequency: 10000
-log_save_tb: true
+log_save_tb: false
 
 # video recorder
 save_video: false
 
 # setups
-seed: 1
+seed: 67890
 
 # Environment
 env: dog_stand
@@ -53,6 +55,15 @@ gradient_update: 1
 
 # hydra configuration
 hydra:
+  job:
     name: ${env}
-    run:
-        dir: ./exp/${env}/H${diag_gaussian_actor.params.hidden_dim}_L${diag_gaussian_actor.params.hidden_depth}_lr${agent.params.actor_lr}/teacher_b${teacher_beta}_g${teacher_gamma}_m${teacher_eps_mistake}_s${teacher_eps_skip}_e${teacher_eps_equal}/label_smooth_${label_margin}/schedule_${reward_schedule}/${experiment}_init${num_seed_steps}_unsup${num_unsup_steps}_inter${num_interact}_maxfeed${max_feedback}_seg${segment}_act${activation}_Rlr${reward_lr}_Rbatch${reward_batch}_Rupdate${reward_update}_en${ensemble_size}_sample${feed_type}_large_batch${large_batch}_seed${seed}
+  run:
+    dir: ./exp/${env}/H${diag_gaussian_actor.params.hidden_dim}_L${diag_gaussian_actor.params.hidden_depth}_lr${agent.params.actor_lr}/teacher_b${teacher_beta}_g${teacher_gamma}_m${teacher_eps_mistake}_s${teacher_eps_skip}_e${teacher_eps_equal}/label_smooth_${label_margin}/schedule_${reward_schedule}/${experiment}_init${num_seed_steps}_unsup${num_unsup_steps}_inter${num_interact}_maxfeed${max_feedback}_seg${segment}_act${activation}_Rlr${reward_lr}_Rbatch${reward_batch}_Rupdate${reward_update}_en${ensemble_size}_sample${feed_type}_large_batch${large_batch}_seed${seed}
+
+wandb:
+  enabled: true         # set false to disable
+  project: BPref_Active_Querying        # <-- your project
+  entity: Uniform Sampling          # or your team name
+  group: Uniform_Sampling         # groups by environment
+  name: 67890
+  mode: online          # online | offline | disabled

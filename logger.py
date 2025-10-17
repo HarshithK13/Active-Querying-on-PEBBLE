@@ -133,23 +133,31 @@ class Logger(object):
                  agent='sac'):
         self._log_dir = log_dir
         self._log_frequency = log_frequency
-        if save_tb:
-            tb_dir = os.path.join(log_dir, 'tb')
+        self._save_tb = save_tb  # keep a flag if you need it later
+
+        # Ensure base log dir exists
+        os.makedirs(self._log_dir, exist_ok=True)
+
+        # TensorBoard setup
+        self._sw = None
+        if self._save_tb:
+            tb_dir = os.path.join(self._log_dir, 'tb')
+            # start fresh TB dir (optional)
             if os.path.exists(tb_dir):
                 try:
                     shutil.rmtree(tb_dir)
-                except:
-                    print("logger.py warning: Unable to remove tb directory")
-                    pass
+                except Exception as e:
+                    print(f"logger.py warning: Unable to remove tb directory: {e}")
+            os.makedirs(tb_dir, exist_ok=True)
             self._sw = SummaryWriter(tb_dir)
-        else:
-            self._sw = None
+
         # each agent has specific output format for training
-        assert agent in AGENT_TRAIN_FORMAT
+        assert agent in AGENT_TRAIN_FORMAT, f"Unknown agent '{agent}'"
         train_format = COMMON_TRAIN_FORMAT + AGENT_TRAIN_FORMAT[agent]
-        self._train_mg = MetersGroup(os.path.join(log_dir, 'train'),
+
+        self._train_mg = MetersGroup(os.path.join(self._log_dir, 'train'),
                                      formating=train_format)
-        self._eval_mg = MetersGroup(os.path.join(log_dir, 'eval'),
+        self._eval_mg = MetersGroup(os.path.join(self._log_dir, 'eval'),
                                     formating=COMMON_EVAL_FORMAT)
 
     def _should_log(self, step, log_frequency):
