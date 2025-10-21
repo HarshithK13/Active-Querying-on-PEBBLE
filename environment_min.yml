@@ -1,0 +1,13 @@
+name: rime2
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - torchvision
+  - torchaudio
+  - pytorch
+  - pytorch-cuda=12.1
+  - gym=0.21.0
+  - scikit-image=0.22
+  - ipykernel
+prefix: /nfs/turbo/umd-sridas/kharshi/.conda/envs/rime2
