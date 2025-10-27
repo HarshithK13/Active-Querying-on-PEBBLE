@@ -1,0 +1,12 @@
+wandb/
+__pycache__/
+*.pyc
+outputs/
+logs/
+checkpoints/
+*.log
+*.pkl
+*.pt
+*.pth
+.env
+.DS_Store
