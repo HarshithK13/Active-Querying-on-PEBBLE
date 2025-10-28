@@ -745,21 +745,6 @@ class RewardModel:
         return cluster_centers_idx, optimal_k
     
     def duo_sampling(self, policy_log_probs=None):
-        """
-        DUO (Diverse, Uncertain, On-Policy) sampling method.
-        
-        Implements the three-stage filtering:
-        1. On-policy: Priority sampling based on trajectory likelihood under current policy
-        2. Uncertain: Filter consensual predictions and prioritize by epistemic uncertainty
-        3. Diverse: Clustering-based selection in reward difference space
-        
-        Args:
-            policy_log_probs: Optional list of log probabilities for trajectories in replay buffer.
-                            If None, skips on-policy filtering (uses uniform sampling).
-        
-        Returns:
-            num_labels: number of labeled queries added
-        """
         num_init = self.mb_size * self.large_batch
         
         # Stage 1: On-policy query generation (ξO)
@@ -771,10 +756,8 @@ class RewardModel:
             if np.sum(on_policy_scores) > 0:
                 sampling_probs = on_policy_scores / np.sum(on_policy_scores)
             else:
-                # Fallback to uniform if all scores are zero
                 sampling_probs = None
         else:
-            # No policy information, use uniform sampling
             sampling_probs = None
         
         # Generate queries with on-policy bias

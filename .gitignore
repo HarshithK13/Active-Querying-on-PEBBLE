@@ -10,3 +10,4 @@ checkpoints/
 *.pth
 .env
 .DS_Store
+exp/

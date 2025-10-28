@@ -25,12 +25,19 @@ except Exception:
     wandb = None
 
 
+
+
+
 class Workspace(object):
     def __init__(self, cfg):
         self.work_dir = os.getcwd()
         print(f'workspace: {self.work_dir}')
 
+
         self.cfg = cfg
+
+        print("DEBUG: cfg.seed =", getattr(cfg, "seed", None))
+        print("DEBUG: ENV SEED =", os.environ.get("SEED"))
 
         # --- W&B init (optional, controlled by Hydra cfg.wandb.*) ---
         self.wandb_run = None
@@ -54,6 +61,7 @@ class Workspace(object):
             # )
 
             # after
+            # robust feed_type -> scheme mapping (Hydra may give strings)
             scheme_map = {
                 0: "Uniform",
                 1: "Disagreement",
@@ -63,11 +71,23 @@ class Workspace(object):
                 5: "KCenter_Entropy",
                 6: "DUO",
             }
-            scheme = scheme_map.get(getattr(cfg, "feed_type", None), "Baseline")
-            run_name = f"{scheme}_{cfg.seed}" 
+
+            # normalize feed_type to int if possible, else None
+            _raw_feed = getattr(cfg, "feed_type", None)
+            try:
+                feed_type_val = int(_raw_feed) if _raw_feed is not None else None
+            except Exception:
+                feed_type_val = None
+
+            scheme = scheme_map.get(feed_type_val, "Baseline")
+
+            # ensure seed string is safe for naming
+            seed_val = getattr(cfg, "seed", "unknown")
+            run_name = f"{scheme}_{seed_val}"
+
             self.wandb_run = wandb.init(
                 project="BPref_Active_Querying",
-                group="Disagreement",
+                group="Uniform sampling",
                 name=run_name,
                 config=OmegaConf.to_container(cfg, resolve=True),
                 reinit=True,  # optional but handy for repeated runs in same process

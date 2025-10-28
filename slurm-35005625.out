@@ -1,0 +1,206 @@
+/nfs/turbo/umd-sabymath/Harshith/Active-Querying-on-PEBBLE/utils.py:10: FutureWarning: In the future `np.bool` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, _name):
+workspace: /nfs/turbo/umd-sabymath/Harshith/Active-Querying-on-PEBBLE
+DEBUG: cfg.seed = 45123
+DEBUG: ENV SEED = 45123
+wandb: Currently logged in as: kharshi (kharshi-university-of-michigan) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: WARNING Using a boolean value for 'reinit' is deprecated. Use 'return_previous' or 'finish_previous' instead.
+wandb: Tracking run with wandb version 0.22.1
+wandb: Run data is saved locally in /nfs/turbo/umd-sridas/kharshi/wandb/wandb/run-20251028_120215-oixz1ljm
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run Uniform_45123
+wandb: ⭐️ View project at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying
+wandb: 🚀 View run at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying/runs/oixz1ljm
+[2025-10-28 12:02:17,708][absl][INFO] - MUJOCO_GL is not set, so an OpenGL backend will be chosen automatically.
+/nfs/turbo/umd-sridas/kharshi/.conda/envs/rime2/lib/python3.10/site-packages/glfw/__init__.py:917: GLFWError: (65550) b'X11: Failed to open display :1'
+  warnings.warn(message, GLFWError)
+[2025-10-28 12:02:17,735][absl][INFO] - Successfully imported OpenGL backend: glfw
+[2025-10-28 12:02:17,801][absl][INFO] - MuJoCo library version is: 3.3.6
+/nfs/turbo/umd-sridas/kharshi/.conda/envs/rime2/lib/python3.10/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+| train          | E: 2 | S: 2000 | R: 65.6606 | TR: 30.3289 | TF: 0 | LR: 0 | NR: 0 | D: 32.5 s | TD: 00.0 s | BR: 0.0709 | ALOSS: -93519.3979 | CLOSS: 696633456.7835 | TLOSS: -5.6931 | TVAL: 0.1190 | AENT: -50.3864 | BCLOSS: 0.0000
+| train          | E: 3 | S: 3000 | R: 85.0614 | TR: 27.1761 | TF: 0 | LR: 0 | NR: 0 | D: 35.1 s | TD: 00.0 s | BR: 0.0663 | ALOSS: -923915.2603 | CLOSS: 8634967761.9200 | TLOSS: -32.3419 | TVAL: 0.1980 | AENT: -165.3025 | BCLOSS: 0.0000
+| train          | E: 4 | S: 4000 | R: 26.1070 | TR: 8.5428 | TF: 0 | LR: 0 | NR: 0 | D: 40.0 s | TD: 00.0 s | BR: 0.0585 | ALOSS: -855278.4709 | CLOSS: 4155191228.0320 | TLOSS: -43.1510 | TVAL: 0.3030 | AENT: -149.4723 | BCLOSS: 0.0000
+| train          | E: 5 | S: 5000 | R: 76.1846 | TR: 64.5686 | TF: 0 | LR: 0 | NR: 0 | D: 43.9 s | TD: 00.0 s | BR: 0.0708 | ALOSS: -320716.4399 | CLOSS: 1255541145.5360 | TLOSS: -37.6396 | TVAL: 0.4184 | AENT: -97.5116 | BCLOSS: 0.0000
+| train          | E: 6 | S: 6000 | R: 104.3518 | TR: 92.6346 | TF: 0 | LR: 0 | NR: 0 | D: 47.0 s | TD: 00.0 s | BR: 0.0676 | ALOSS: -114077.3440 | CLOSS: 224617653.6000 | TLOSS: -29.8732 | TVAL: 0.5410 | AENT: -61.6508 | BCLOSS: 0.0000
+| train          | E: 7 | S: 7000 | R: 22.5404 | TR: 12.7958 | TF: 0 | LR: 0 | NR: 0 | D: 50.4 s | TD: 00.0 s | BR: 0.0627 | ALOSS: -33357.6810 | CLOSS: 51731104.5160 | TLOSS: -26.8108 | TVAL: 0.6986 | AENT: -44.5987 | BCLOSS: 0.0000
+| train          | E: 8 | S: 8000 | R: 78.3701 | TR: 108.9046 | TF: 0 | LR: 0 | NR: 0 | D: 53.3 s | TD: 00.0 s | BR: 0.0703 | ALOSS: -23091.6317 | CLOSS: 24670239.4630 | TLOSS: -30.1880 | TVAL: 0.9279 | AENT: -38.6336 | BCLOSS: 0.0000
+| train          | E: 9 | S: 9000 | R: 140.1605 | TR: 89.8888 | TF: 0 | LR: 0 | NR: 0 | D: 54.7 s | TD: 00.0 s | BR: 0.0736 | ALOSS: -21275.6877 | CLOSS: 14843968.3305 | TLOSS: -29.3123 | TVAL: 1.2608 | AENT: -29.5473 | BCLOSS: 0.0000
+| train          | E: 10 | S: 10000 | R: 51.6484 | TR: 75.3523 | TF: 0 | LR: 0 | NR: 0 | D: 61.3 s | TD: 00.0 s | BR: 0.0714 | ALOSS: -13260.5001 | CLOSS: 7776040.1555 | TLOSS: -27.5489 | TVAL: 1.6715 | AENT: -22.5809 | BCLOSS: 0.0000
+| eval           | E: 10 | S: 10000 | R: 52.3537 | TR: 52.3537 | TS: 0.0000
+Reward function is updated!! ACC: 0.9733333333333333
+| train          | E: 11 | S: 11000 | R: 39.2808 | TR: 79.8074 | TF: 0 | LR: 0 | NR: 0 | D: 34.2 s | TD: 00.0 s | BR: 0.1521 | ALOSS: -5.8000 | CLOSS: 43.8961 | TLOSS: 14.6837 | TVAL: 1.7734 | AENT: 2.3280 | BCLOSS: 0.0000
+| train          | E: 12 | S: 12000 | R: 122.8049 | TR: 35.9427 | TF: 50 | LR: 50 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.1501 | ALOSS: -15.7041 | CLOSS: 7.2195 | TLOSS: 13.5739 | TVAL: 1.4320 | AENT: 3.4860 | BCLOSS: 0.0000
+| train          | E: 13 | S: 13000 | R: 105.6561 | TR: 39.5136 | TF: 50 | LR: 50 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1451 | ALOSS: -23.0922 | CLOSS: 3.2534 | TLOSS: 11.0731 | TVAL: 1.1418 | AENT: 3.7002 | BCLOSS: 0.0000
+| train          | E: 14 | S: 14000 | R: 96.1387 | TR: 29.5769 | TF: 50 | LR: 50 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.1419 | ALOSS: -29.2675 | CLOSS: 1.9872 | TLOSS: 8.9128 | TVAL: 0.9099 | AENT: 3.7971 | BCLOSS: 0.0000
+| train          | E: 15 | S: 15000 | R: 87.6358 | TR: 31.3924 | TF: 50 | LR: 50 | NR: 0 | D: 18.0 s | TD: 00.0 s | BR: 0.1374 | ALOSS: -34.2603 | CLOSS: 1.4516 | TLOSS: 7.1485 | TVAL: 0.7256 | AENT: 3.8526 | BCLOSS: 0.0000
+| train          | E: 16 | S: 16000 | R: 94.0674 | TR: 29.9401 | TF: 50 | LR: 50 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.1341 | ALOSS: -38.2345 | CLOSS: 1.1487 | TLOSS: 5.7171 | TVAL: 0.5792 | AENT: 3.8710 | BCLOSS: 0.0000
+| train          | E: 17 | S: 17000 | R: 90.0728 | TR: 35.9683 | TF: 50 | LR: 50 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1319 | ALOSS: -41.3364 | CLOSS: 0.9830 | TLOSS: 4.5657 | TVAL: 0.4627 | AENT: 3.8665 | BCLOSS: 0.0000
+| train          | E: 18 | S: 18000 | R: 106.6659 | TR: 38.6451 | TF: 50 | LR: 50 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1312 | ALOSS: -43.5470 | CLOSS: 0.8205 | TLOSS: 3.6381 | TVAL: 0.3700 | AENT: 3.8322 | BCLOSS: 0.0000
+| train          | E: 19 | S: 19000 | R: 131.5127 | TR: 25.5226 | TF: 50 | LR: 50 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1312 | ALOSS: -45.1829 | CLOSS: 0.7568 | TLOSS: 2.9012 | TVAL: 0.2960 | AENT: 3.8003 | BCLOSS: 0.0000
+| train          | E: 20 | S: 20000 | R: 99.4674 | TR: 30.6884 | TF: 50 | LR: 50 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.1303 | ALOSS: -46.3398 | CLOSS: 0.6143 | TLOSS: 2.3084 | TVAL: 0.2369 | AENT: 3.7420 | BCLOSS: 0.0000
+| eval           | E: 20 | S: 20000 | R: 20.2918 | TR: 20.2918 | TS: 0.0000
+| train          | E: 21 | S: 21000 | R: 122.6066 | TR: 47.0750 | TF: 50 | LR: 50 | NR: 0 | D: 29.7 s | TD: 00.0 s | BR: 0.1300 | ALOSS: -47.0858 | CLOSS: 0.5800 | TLOSS: 1.8302 | TVAL: 0.1898 | AENT: 3.6415 | BCLOSS: 0.0000
+| train          | E: 22 | S: 22000 | R: 153.3635 | TR: 25.8300 | TF: 50 | LR: 50 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.1320 | ALOSS: -47.4866 | CLOSS: 0.4911 | TLOSS: 1.4446 | TVAL: 0.1522 | AENT: 3.4891 | BCLOSS: 0.0000
+| train          | E: 23 | S: 23000 | R: 180.0819 | TR: 25.0176 | TF: 50 | LR: 50 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.1331 | ALOSS: -47.6645 | CLOSS: 0.4339 | TLOSS: 1.1344 | TVAL: 0.1222 | AENT: 3.2770 | BCLOSS: 0.0000
+| train          | E: 24 | S: 24000 | R: 145.8666 | TR: 34.0873 | TF: 50 | LR: 50 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.1330 | ALOSS: -47.7051 | CLOSS: 0.3763 | TLOSS: 0.8853 | TVAL: 0.0983 | AENT: 2.9977 | BCLOSS: 0.0000
+| train          | E: 25 | S: 25000 | R: 139.7403 | TR: 33.3993 | TF: 50 | LR: 50 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1361 | ALOSS: -47.5736 | CLOSS: 0.3457 | TLOSS: 0.6882 | TVAL: 0.0793 | AENT: 2.6755 | BCLOSS: 0.0000
+| train          | E: 26 | S: 26000 | R: 227.1064 | TR: 25.9843 | TF: 50 | LR: 50 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.1391 | ALOSS: -47.3360 | CLOSS: 0.2950 | TLOSS: 0.5312 | TVAL: 0.0640 | AENT: 2.2872 | BCLOSS: 0.0000
+| train          | E: 27 | S: 27000 | R: 201.5608 | TR: 41.1565 | TF: 50 | LR: 50 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.1418 | ALOSS: -46.9844 | CLOSS: 0.2921 | TLOSS: 0.4068 | TVAL: 0.0519 | AENT: 1.8352 | BCLOSS: 0.0000
+| train          | E: 28 | S: 28000 | R: 226.8076 | TR: 28.1536 | TF: 50 | LR: 50 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1455 | ALOSS: -46.5842 | CLOSS: 0.2608 | TLOSS: 0.3107 | TVAL: 0.0421 | AENT: 1.3718 | BCLOSS: 0.0000
+| train          | E: 29 | S: 29000 | R: 260.2697 | TR: 76.5838 | TF: 50 | LR: 50 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.1508 | ALOSS: -46.1381 | CLOSS: 0.2266 | TLOSS: 0.2341 | TVAL: 0.0343 | AENT: 0.8207 | BCLOSS: 0.0000
+| train          | E: 30 | S: 30000 | R: 311.6781 | TR: 84.3953 | TF: 50 | LR: 50 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1569 | ALOSS: -45.7164 | CLOSS: 0.2195 | TLOSS: 0.1714 | TVAL: 0.0280 | AENT: 0.1017 | BCLOSS: 0.0000
+| eval           | E: 30 | S: 30000 | R: 90.6000 | TR: 90.6000 | TS: 0.0000
+Reward function is updated!! ACC: 0.9700000000000001
+| train          | E: 31 | S: 31000 | R: 343.1006 | TR: 94.6654 | TF: 50 | LR: 50 | NR: 0 | D: 41.1 s | TD: 00.0 s | BR: 0.1744 | ALOSS: -45.2792 | CLOSS: 0.2058 | TLOSS: 0.1381 | TVAL: 0.0230 | AENT: 0.0259 | BCLOSS: 0.0000
+| train          | E: 32 | S: 32000 | R: 216.6626 | TR: 45.1125 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1768 | ALOSS: -44.7843 | CLOSS: 0.1953 | TLOSS: 0.1078 | TVAL: 0.0185 | AENT: -0.2000 | BCLOSS: 0.0000
+| train          | E: 33 | S: 33000 | R: 316.6339 | TR: 62.0442 | TF: 100 | LR: 100 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1804 | ALOSS: -44.3645 | CLOSS: 0.1749 | TLOSS: 0.0744 | TVAL: 0.0152 | AENT: -1.1104 | BCLOSS: 0.0000
+| train          | E: 34 | S: 34000 | R: 297.2473 | TR: 57.8087 | TF: 100 | LR: 100 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1856 | ALOSS: -43.9895 | CLOSS: 0.1658 | TLOSS: 0.0503 | TVAL: 0.0126 | AENT: -2.0285 | BCLOSS: 0.0000
+| train          | E: 35 | S: 35000 | R: 373.2888 | TR: 61.1580 | TF: 100 | LR: 100 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1899 | ALOSS: -43.6507 | CLOSS: 0.1613 | TLOSS: 0.0321 | TVAL: 0.0107 | AENT: -3.0084 | BCLOSS: 0.0000
+| train          | E: 36 | S: 36000 | R: 223.1064 | TR: 39.6320 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1928 | ALOSS: -43.3632 | CLOSS: 0.1470 | TLOSS: 0.0200 | TVAL: 0.0092 | AENT: -3.8287 | BCLOSS: 0.0000
+| train          | E: 37 | S: 37000 | R: 403.7854 | TR: 67.4260 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1983 | ALOSS: -43.0979 | CLOSS: 0.1409 | TLOSS: 0.0106 | TVAL: 0.0081 | AENT: -4.6951 | BCLOSS: 0.0000
+| train          | E: 38 | S: 38000 | R: 425.3280 | TR: 71.7070 | TF: 100 | LR: 100 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2016 | ALOSS: -42.8492 | CLOSS: 0.1313 | TLOSS: 0.0058 | TVAL: 0.0073 | AENT: -5.2139 | BCLOSS: 0.0000
+| train          | E: 39 | S: 39000 | R: 247.4345 | TR: 49.0982 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.2066 | ALOSS: -42.6160 | CLOSS: 0.1248 | TLOSS: 0.0027 | TVAL: 0.0067 | AENT: -5.5944 | BCLOSS: 0.0000
+| train          | E: 40 | S: 40000 | R: 449.7070 | TR: 65.8239 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.2122 | ALOSS: -42.4023 | CLOSS: 0.1150 | TLOSS: 0.0004 | TVAL: 0.0064 | AENT: -5.9322 | BCLOSS: 0.0000
+| eval           | E: 40 | S: 40000 | R: 71.6304 | TR: 71.6304 | TS: 0.0000
+| train          | E: 41 | S: 41000 | R: 469.8948 | TR: 78.5852 | TF: 100 | LR: 100 | NR: 0 | D: 28.1 s | TD: 00.0 s | BR: 0.2195 | ALOSS: -42.2119 | CLOSS: 0.1097 | TLOSS: -0.0003 | TVAL: 0.0065 | AENT: -6.0518 | BCLOSS: 0.0000
+| train          | E: 42 | S: 42000 | R: 482.9017 | TR: 93.0571 | TF: 100 | LR: 100 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2259 | ALOSS: -42.0522 | CLOSS: 0.1167 | TLOSS: -0.0006 | TVAL: 0.0066 | AENT: -6.0884 | BCLOSS: 0.0000
+| train          | E: 43 | S: 43000 | R: 493.6332 | TR: 97.7076 | TF: 100 | LR: 100 | NR: 0 | D: 18.2 s | TD: 00.0 s | BR: 0.2300 | ALOSS: -41.9076 | CLOSS: 0.1119 | TLOSS: -0.0001 | TVAL: 0.0069 | AENT: -6.0149 | BCLOSS: 0.0000
+| train          | E: 44 | S: 44000 | R: 398.4543 | TR: 37.9981 | TF: 100 | LR: 100 | NR: 0 | D: 17.9 s | TD: 00.0 s | BR: 0.2345 | ALOSS: -41.7876 | CLOSS: 0.1071 | TLOSS: 0.0001 | TVAL: 0.0069 | AENT: -5.9878 | BCLOSS: 0.0000
+| train          | E: 45 | S: 45000 | R: 507.5125 | TR: 97.2405 | TF: 100 | LR: 100 | NR: 0 | D: 18.1 s | TD: 00.0 s | BR: 0.2419 | ALOSS: -41.7049 | CLOSS: 0.1055 | TLOSS: -0.0003 | TVAL: 0.0070 | AENT: -6.0481 | BCLOSS: 0.0000
+| train          | E: 46 | S: 46000 | R: 501.7201 | TR: 81.1632 | TF: 100 | LR: 100 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.2478 | ALOSS: -41.6562 | CLOSS: 0.1079 | TLOSS: -0.0002 | TVAL: 0.0071 | AENT: -6.0284 | BCLOSS: 0.0000
+| train          | E: 47 | S: 47000 | R: 512.2440 | TR: 92.7168 | TF: 100 | LR: 100 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2533 | ALOSS: -41.6389 | CLOSS: 0.1006 | TLOSS: -0.0002 | TVAL: 0.0073 | AENT: -6.0343 | BCLOSS: 0.0000
+| train          | E: 48 | S: 48000 | R: 509.7793 | TR: 101.2287 | TF: 100 | LR: 100 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.2568 | ALOSS: -41.5836 | CLOSS: 0.1064 | TLOSS: 0.0004 | TVAL: 0.0072 | AENT: -5.9483 | BCLOSS: 0.0000
+| train          | E: 49 | S: 49000 | R: 394.7461 | TR: 39.9565 | TF: 100 | LR: 100 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2614 | ALOSS: -41.5269 | CLOSS: 0.1092 | TLOSS: -0.0001 | TVAL: 0.0071 | AENT: -6.0143 | BCLOSS: 0.0000
+| train          | E: 50 | S: 50000 | R: 415.9206 | TR: 38.0161 | TF: 100 | LR: 100 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2639 | ALOSS: -41.4627 | CLOSS: 0.1022 | TLOSS: -0.0001 | TVAL: 0.0072 | AENT: -6.0088 | BCLOSS: 0.0000
+| eval           | E: 50 | S: 50000 | R: 110.0904 | TR: 110.0904 | TS: 0.0000
+Reward function is updated!! ACC: 0.9733333333333333
+| train          | E: 51 | S: 51000 | R: 425.4792 | TR: 48.8849 | TF: 100 | LR: 100 | NR: 0 | D: 39.9 s | TD: 00.0 s | BR: 0.1709 | ALOSS: -41.2004 | CLOSS: 0.1134 | TLOSS: 0.0019 | TVAL: 0.0066 | AENT: -5.7139 | BCLOSS: 0.0000
+| train          | E: 52 | S: 52000 | R: 331.0342 | TR: 91.0641 | TF: 150 | LR: 150 | NR: 0 | D: 18.2 s | TD: 00.0 s | BR: 0.1743 | ALOSS: -40.9232 | CLOSS: 0.1065 | TLOSS: 0.0012 | TVAL: 0.0057 | AENT: -5.7922 | BCLOSS: 0.0000
+| train          | E: 53 | S: 53000 | R: 366.3539 | TR: 90.0959 | TF: 150 | LR: 150 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.1751 | ALOSS: -40.5975 | CLOSS: 0.1017 | TLOSS: 0.0006 | TVAL: 0.0052 | AENT: -5.8936 | BCLOSS: 0.0000
+| train          | E: 54 | S: 54000 | R: 188.8111 | TR: 28.1897 | TF: 150 | LR: 150 | NR: 0 | D: 18.0 s | TD: 00.0 s | BR: 0.1768 | ALOSS: -40.2506 | CLOSS: 0.1028 | TLOSS: -0.0002 | TVAL: 0.0051 | AENT: -6.0346 | BCLOSS: 0.0000
+| train          | E: 55 | S: 55000 | R: 163.2428 | TR: 65.6374 | TF: 150 | LR: 150 | NR: 0 | D: 18.0 s | TD: 00.0 s | BR: 0.1787 | ALOSS: -39.9635 | CLOSS: 0.1017 | TLOSS: -0.0003 | TVAL: 0.0053 | AENT: -6.0629 | BCLOSS: 0.0000
+| train          | E: 56 | S: 56000 | R: 430.3775 | TR: 156.0567 | TF: 150 | LR: 150 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.1807 | ALOSS: -39.7106 | CLOSS: 0.0999 | TLOSS: 0.0002 | TVAL: 0.0054 | AENT: -5.9665 | BCLOSS: 0.0000
+| train          | E: 57 | S: 57000 | R: 284.0040 | TR: 78.1714 | TF: 150 | LR: 150 | NR: 0 | D: 18.2 s | TD: 00.0 s | BR: 0.1819 | ALOSS: -39.4539 | CLOSS: 0.1011 | TLOSS: 0.0001 | TVAL: 0.0053 | AENT: -5.9760 | BCLOSS: 0.0000
+| train          | E: 58 | S: 58000 | R: 345.9532 | TR: 77.3727 | TF: 150 | LR: 150 | NR: 0 | D: 18.6 s | TD: 00.0 s | BR: 0.1859 | ALOSS: -39.2510 | CLOSS: 0.0989 | TLOSS: -0.0003 | TVAL: 0.0054 | AENT: -6.0578 | BCLOSS: 0.0000
+| train          | E: 59 | S: 59000 | R: 447.4695 | TR: 140.7150 | TF: 150 | LR: 150 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1914 | ALOSS: -39.0774 | CLOSS: 0.0978 | TLOSS: -0.0002 | TVAL: 0.0055 | AENT: -6.0360 | BCLOSS: 0.0000
+| train          | E: 60 | S: 60000 | R: 393.2585 | TR: 120.7785 | TF: 150 | LR: 150 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.1953 | ALOSS: -38.9107 | CLOSS: 0.1026 | TLOSS: -0.0000 | TVAL: 0.0056 | AENT: -6.0029 | BCLOSS: 0.0000
+| eval           | E: 60 | S: 60000 | R: 128.4761 | TR: 128.4761 | TS: 0.0000
+| train          | E: 61 | S: 61000 | R: 439.6953 | TR: 143.7290 | TF: 150 | LR: 150 | NR: 0 | D: 29.0 s | TD: 00.0 s | BR: 0.1989 | ALOSS: -38.7636 | CLOSS: 0.1024 | TLOSS: -0.0005 | TVAL: 0.0058 | AENT: -6.0847 | BCLOSS: 0.0000
+| train          | E: 62 | S: 62000 | R: 429.9400 | TR: 122.3170 | TF: 150 | LR: 150 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.2027 | ALOSS: -38.6468 | CLOSS: 0.1066 | TLOSS: 0.0001 | TVAL: 0.0059 | AENT: -5.9822 | BCLOSS: 0.0000
+| train          | E: 63 | S: 63000 | R: 415.8965 | TR: 115.4990 | TF: 150 | LR: 150 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2070 | ALOSS: -38.5590 | CLOSS: 0.1028 | TLOSS: -0.0002 | TVAL: 0.0059 | AENT: -6.0311 | BCLOSS: 0.0000
+| train          | E: 64 | S: 64000 | R: 449.1951 | TR: 136.6366 | TF: 150 | LR: 150 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2096 | ALOSS: -38.4303 | CLOSS: 0.1101 | TLOSS: -0.0001 | TVAL: 0.0060 | AENT: -6.0139 | BCLOSS: 0.0000
+| train          | E: 65 | S: 65000 | R: 387.7573 | TR: 101.4999 | TF: 150 | LR: 150 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.2119 | ALOSS: -38.2982 | CLOSS: 0.1144 | TLOSS: -0.0001 | TVAL: 0.0061 | AENT: -6.0158 | BCLOSS: 0.0000
+| train          | E: 66 | S: 66000 | R: 334.9106 | TR: 73.7893 | TF: 150 | LR: 150 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2140 | ALOSS: -38.2239 | CLOSS: 0.1105 | TLOSS: -0.0001 | TVAL: 0.0062 | AENT: -6.0130 | BCLOSS: 0.0000
+| train          | E: 67 | S: 67000 | R: 477.0649 | TR: 120.6262 | TF: 150 | LR: 150 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2187 | ALOSS: -38.2139 | CLOSS: 0.1189 | TLOSS: -0.0002 | TVAL: 0.0063 | AENT: -6.0265 | BCLOSS: 0.0000
+| train          | E: 68 | S: 68000 | R: 455.9321 | TR: 115.6410 | TF: 150 | LR: 150 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2207 | ALOSS: -38.1533 | CLOSS: 0.1131 | TLOSS: -0.0000 | TVAL: 0.0063 | AENT: -6.0070 | BCLOSS: 0.0000
+| train          | E: 69 | S: 69000 | R: 444.8135 | TR: 115.6235 | TF: 150 | LR: 150 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.2260 | ALOSS: -38.1317 | CLOSS: 0.1181 | TLOSS: -0.0001 | TVAL: 0.0063 | AENT: -6.0094 | BCLOSS: 0.0000
+| train          | E: 70 | S: 70000 | R: 483.9164 | TR: 123.2493 | TF: 150 | LR: 150 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2274 | ALOSS: -38.1111 | CLOSS: 0.1193 | TLOSS: -0.0001 | TVAL: 0.0064 | AENT: -6.0115 | BCLOSS: 0.0000
+| eval           | E: 70 | S: 70000 | R: 133.9897 | TR: 133.9897 | TS: 0.0000
+Reward function is updated!! ACC: 0.9733333333333333
+| train          | E: 71 | S: 71000 | R: 475.2174 | TR: 128.6796 | TF: 150 | LR: 150 | NR: 0 | D: 35.6 s | TD: 00.0 s | BR: 0.1917 | ALOSS: -38.0083 | CLOSS: 0.1237 | TLOSS: 0.0005 | TVAL: 0.0063 | AENT: -5.9150 | BCLOSS: 0.0000
+| train          | E: 72 | S: 72000 | R: 383.1241 | TR: 111.9396 | TF: 200 | LR: 200 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.1945 | ALOSS: -37.8514 | CLOSS: 0.1268 | TLOSS: 0.0005 | TVAL: 0.0059 | AENT: -5.9153 | BCLOSS: 0.0000
+| train          | E: 73 | S: 73000 | R: 385.1036 | TR: 120.0526 | TF: 200 | LR: 200 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.1959 | ALOSS: -37.7138 | CLOSS: 0.1218 | TLOSS: 0.0001 | TVAL: 0.0057 | AENT: -5.9879 | BCLOSS: 0.0000
+| train          | E: 74 | S: 74000 | R: 386.5262 | TR: 107.8920 | TF: 200 | LR: 200 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.1998 | ALOSS: -37.5855 | CLOSS: 0.1281 | TLOSS: -0.0002 | TVAL: 0.0057 | AENT: -6.0283 | BCLOSS: 0.0000
+| train          | E: 75 | S: 75000 | R: 392.4737 | TR: 119.9772 | TF: 200 | LR: 200 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.2016 | ALOSS: -37.4837 | CLOSS: 0.1328 | TLOSS: -0.0003 | TVAL: 0.0059 | AENT: -6.0528 | BCLOSS: 0.0000
+| train          | E: 76 | S: 76000 | R: 410.2821 | TR: 119.5382 | TF: 200 | LR: 200 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2053 | ALOSS: -37.3963 | CLOSS: 0.1311 | TLOSS: 0.0001 | TVAL: 0.0060 | AENT: -5.9806 | BCLOSS: 0.0000
+| train          | E: 77 | S: 77000 | R: 405.5973 | TR: 118.8435 | TF: 200 | LR: 200 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.2081 | ALOSS: -37.3170 | CLOSS: 0.1399 | TLOSS: -0.0001 | TVAL: 0.0060 | AENT: -6.0217 | BCLOSS: 0.0000
+| train          | E: 78 | S: 78000 | R: 414.1370 | TR: 120.3995 | TF: 200 | LR: 200 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.2104 | ALOSS: -37.2363 | CLOSS: 0.1452 | TLOSS: -0.0001 | TVAL: 0.0061 | AENT: -6.0150 | BCLOSS: 0.0000
+| train          | E: 79 | S: 79000 | R: 396.9187 | TR: 114.3976 | TF: 200 | LR: 200 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.2131 | ALOSS: -37.1761 | CLOSS: 0.1503 | TLOSS: -0.0003 | TVAL: 0.0061 | AENT: -6.0432 | BCLOSS: 0.0000
+| train          | E: 80 | S: 80000 | R: 408.9499 | TR: 127.9318 | TF: 200 | LR: 200 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2163 | ALOSS: -37.1477 | CLOSS: 0.1559 | TLOSS: -0.0004 | TVAL: 0.0064 | AENT: -6.0616 | BCLOSS: 0.0000
+| eval           | E: 80 | S: 80000 | R: 125.0755 | TR: 125.0755 | TS: 0.0000
+| train          | E: 81 | S: 81000 | R: 400.6649 | TR: 118.1352 | TF: 200 | LR: 200 | NR: 0 | D: 29.5 s | TD: 00.0 s | BR: 0.2179 | ALOSS: -37.1079 | CLOSS: 0.1671 | TLOSS: 0.0001 | TVAL: 0.0066 | AENT: -5.9802 | BCLOSS: 0.0000
+| train          | E: 82 | S: 82000 | R: 403.1940 | TR: 130.8549 | TF: 200 | LR: 200 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2209 | ALOSS: -37.1030 | CLOSS: 0.1689 | TLOSS: -0.0000 | TVAL: 0.0065 | AENT: -6.0023 | BCLOSS: 0.0000
+| train          | E: 83 | S: 83000 | R: 414.1041 | TR: 120.6534 | TF: 200 | LR: 200 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2219 | ALOSS: -37.0463 | CLOSS: 0.1729 | TLOSS: 0.0001 | TVAL: 0.0064 | AENT: -5.9857 | BCLOSS: 0.0000
+| train          | E: 84 | S: 84000 | R: 400.7718 | TR: 128.6646 | TF: 200 | LR: 200 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2249 | ALOSS: -37.0090 | CLOSS: 0.1773 | TLOSS: -0.0002 | TVAL: 0.0065 | AENT: -6.0310 | BCLOSS: 0.0000
+| train          | E: 85 | S: 85000 | R: 420.7755 | TR: 118.8379 | TF: 200 | LR: 200 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.2272 | ALOSS: -37.0075 | CLOSS: 0.1752 | TLOSS: -0.0001 | TVAL: 0.0066 | AENT: -6.0181 | BCLOSS: 0.0000
+| train          | E: 86 | S: 86000 | R: 398.5655 | TR: 128.0109 | TF: 200 | LR: 200 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2298 | ALOSS: -37.0028 | CLOSS: 0.1690 | TLOSS: 0.0002 | TVAL: 0.0066 | AENT: -5.9755 | BCLOSS: 0.0000
+| train          | E: 87 | S: 87000 | R: 400.3347 | TR: 121.9959 | TF: 200 | LR: 200 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2324 | ALOSS: -37.0187 | CLOSS: 0.1582 | TLOSS: -0.0000 | TVAL: 0.0066 | AENT: -6.0048 | BCLOSS: 0.0000
+| train          | E: 88 | S: 88000 | R: 417.3181 | TR: 126.6526 | TF: 200 | LR: 200 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2332 | ALOSS: -36.9865 | CLOSS: 0.1533 | TLOSS: 0.0002 | TVAL: 0.0065 | AENT: -5.9723 | BCLOSS: 0.0000
+| train          | E: 89 | S: 89000 | R: 425.4652 | TR: 129.4027 | TF: 200 | LR: 200 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.2357 | ALOSS: -37.0109 | CLOSS: 0.1494 | TLOSS: -0.0000 | TVAL: 0.0065 | AENT: -6.0049 | BCLOSS: 0.0000
+| train          | E: 90 | S: 90000 | R: 429.2409 | TR: 121.1925 | TF: 200 | LR: 200 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2366 | ALOSS: -36.9846 | CLOSS: 0.1395 | TLOSS: 0.0001 | TVAL: 0.0064 | AENT: -5.9768 | BCLOSS: 0.0000
+| eval           | E: 90 | S: 90000 | R: 126.6362 | TR: 126.6362 | TS: 0.0000
+Reward function is updated!! ACC: 0.976
+| train          | E: 91 | S: 91000 | R: 425.5180 | TR: 126.6713 | TF: 200 | LR: 200 | NR: 0 | D: 38.2 s | TD: 00.0 s | BR: 0.1900 | ALOSS: -36.8772 | CLOSS: 0.1452 | TLOSS: 0.0006 | TVAL: 0.0061 | AENT: -5.8968 | BCLOSS: 0.0000
+| train          | E: 92 | S: 92000 | R: 329.7081 | TR: 115.8968 | TF: 250 | LR: 250 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.1918 | ALOSS: -36.7576 | CLOSS: 0.1368 | TLOSS: 0.0004 | TVAL: 0.0058 | AENT: -5.9273 | BCLOSS: 0.0000
+| train          | E: 93 | S: 93000 | R: 348.7571 | TR: 112.1731 | TF: 250 | LR: 250 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1948 | ALOSS: -36.6255 | CLOSS: 0.1343 | TLOSS: 0.0001 | TVAL: 0.0056 | AENT: -5.9775 | BCLOSS: 0.0000
+| train          | E: 94 | S: 94000 | R: 361.6862 | TR: 112.0696 | TF: 250 | LR: 250 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.1959 | ALOSS: -36.5197 | CLOSS: 0.1323 | TLOSS: -0.0001 | TVAL: 0.0056 | AENT: -6.0240 | BCLOSS: 0.0000
+| train          | E: 95 | S: 95000 | R: 374.7419 | TR: 120.4381 | TF: 250 | LR: 250 | NR: 0 | D: 19.6 s | TD: 00.0 s | BR: 0.1969 | ALOSS: -36.4531 | CLOSS: 0.1277 | TLOSS: -0.0001 | TVAL: 0.0057 | AENT: -6.0139 | BCLOSS: 0.0000
+| train          | E: 96 | S: 96000 | R: 382.0149 | TR: 117.0763 | TF: 250 | LR: 250 | NR: 0 | D: 19.1 s | TD: 00.0 s | BR: 0.1987 | ALOSS: -36.3784 | CLOSS: 0.1319 | TLOSS: 0.0001 | TVAL: 0.0056 | AENT: -5.9769 | BCLOSS: 0.0000
+| train          | E: 97 | S: 97000 | R: 390.7855 | TR: 122.3550 | TF: 250 | LR: 250 | NR: 0 | D: 19.3 s | TD: 00.0 s | BR: 0.2021 | ALOSS: -36.3239 | CLOSS: 0.1263 | TLOSS: -0.0003 | TVAL: 0.0057 | AENT: -6.0461 | BCLOSS: 0.0000
+| train          | E: 98 | S: 98000 | R: 400.6526 | TR: 122.9766 | TF: 250 | LR: 250 | NR: 0 | D: 19.6 s | TD: 00.0 s | BR: 0.2031 | ALOSS: -36.2507 | CLOSS: 0.1217 | TLOSS: -0.0000 | TVAL: 0.0058 | AENT: -6.0006 | BCLOSS: 0.0000
+| train          | E: 99 | S: 99000 | R: 401.7599 | TR: 120.1751 | TF: 250 | LR: 250 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2050 | ALOSS: -36.1544 | CLOSS: 0.1173 | TLOSS: 0.0002 | TVAL: 0.0058 | AENT: -5.9725 | BCLOSS: 0.0000
+| train          | E: 100 | S: 100000 | R: 53.3086 | TR: 15.4022 | TF: 250 | LR: 250 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2031 | ALOSS: -36.0579 | CLOSS: 0.1094 | TLOSS: -0.0002 | TVAL: 0.0058 | AENT: -6.0275 | BCLOSS: 0.0000
+| eval           | E: 100 | S: 100000 | R: 124.0212 | TR: 124.0212 | TS: 0.0000
+| train          | E: 101 | S: 101000 | R: 398.4826 | TR: 132.3919 | TF: 250 | LR: 250 | NR: 0 | D: 29.9 s | TD: 00.0 s | BR: 0.2061 | ALOSS: -35.9644 | CLOSS: 0.1101 | TLOSS: -0.0000 | TVAL: 0.0058 | AENT: -6.0088 | BCLOSS: 0.0000
+| train          | E: 102 | S: 102000 | R: 400.5972 | TR: 130.4958 | TF: 250 | LR: 250 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2082 | ALOSS: -35.8559 | CLOSS: 0.1115 | TLOSS: 0.0001 | TVAL: 0.0058 | AENT: -5.9843 | BCLOSS: 0.0000
+| train          | E: 103 | S: 103000 | R: 399.0828 | TR: 125.9636 | TF: 250 | LR: 250 | NR: 0 | D: 19.8 s | TD: 00.0 s | BR: 0.2098 | ALOSS: -35.7386 | CLOSS: 0.1064 | TLOSS: 0.0000 | TVAL: 0.0057 | AENT: -5.9988 | BCLOSS: 0.0000
+| train          | E: 104 | S: 104000 | R: 412.3531 | TR: 131.2243 | TF: 250 | LR: 250 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2125 | ALOSS: -35.6317 | CLOSS: 0.1098 | TLOSS: -0.0000 | TVAL: 0.0058 | AENT: -6.0082 | BCLOSS: 0.0000
+| train          | E: 105 | S: 105000 | R: 411.3353 | TR: 132.8403 | TF: 250 | LR: 250 | NR: 0 | D: 19.8 s | TD: 00.0 s | BR: 0.2131 | ALOSS: -35.5311 | CLOSS: 0.1084 | TLOSS: -0.0001 | TVAL: 0.0058 | AENT: -6.0216 | BCLOSS: 0.0000
+| train          | E: 106 | S: 106000 | R: 436.5543 | TR: 139.1667 | TF: 250 | LR: 250 | NR: 0 | D: 19.8 s | TD: 00.0 s | BR: 0.2152 | ALOSS: -35.4253 | CLOSS: 0.1088 | TLOSS: 0.0000 | TVAL: 0.0059 | AENT: -5.9957 | BCLOSS: 0.0000
+| train          | E: 107 | S: 107000 | R: 414.9048 | TR: 132.5497 | TF: 250 | LR: 250 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2187 | ALOSS: -35.3460 | CLOSS: 0.1099 | TLOSS: -0.0002 | TVAL: 0.0059 | AENT: -6.0256 | BCLOSS: 0.0000
+| train          | E: 108 | S: 108000 | R: 431.8972 | TR: 132.7824 | TF: 250 | LR: 250 | NR: 0 | D: 19.4 s | TD: 00.0 s | BR: 0.2202 | ALOSS: -35.2913 | CLOSS: 0.1073 | TLOSS: -0.0001 | TVAL: 0.0061 | AENT: -6.0188 | BCLOSS: 0.0000
+| train          | E: 109 | S: 109000 | R: 429.1348 | TR: 126.5881 | TF: 250 | LR: 250 | NR: 0 | D: 19.8 s | TD: 00.0 s | BR: 0.2216 | ALOSS: -35.2269 | CLOSS: 0.1116 | TLOSS: -0.0003 | TVAL: 0.0061 | AENT: -6.0464 | BCLOSS: 0.0000
+| train          | E: 110 | S: 110000 | R: 438.1716 | TR: 134.9183 | TF: 250 | LR: 250 | NR: 0 | D: 19.8 s | TD: 00.0 s | BR: 0.2232 | ALOSS: -35.1677 | CLOSS: 0.1103 | TLOSS: 0.0001 | TVAL: 0.0062 | AENT: -5.9791 | BCLOSS: 0.0000
+| eval           | E: 110 | S: 110000 | R: 134.1486 | TR: 134.1486 | TS: 0.0000
+Reward function is updated!! ACC: 0.9733333333333333
+| train          | E: 111 | S: 111000 | R: 374.3620 | TR: 120.5770 | TF: 250 | LR: 250 | NR: 0 | D: 41.0 s | TD: 00.0 s | BR: 0.2216 | ALOSS: -35.1123 | CLOSS: 0.1143 | TLOSS: 0.0003 | TVAL: 0.0061 | AENT: -5.9546 | BCLOSS: 0.0000
+| train          | E: 112 | S: 112000 | R: 367.4163 | TR: 122.3980 | TF: 300 | LR: 300 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2227 | ALOSS: -35.0482 | CLOSS: 0.1170 | TLOSS: 0.0002 | TVAL: 0.0058 | AENT: -5.9672 | BCLOSS: 0.0000
+| train          | E: 113 | S: 113000 | R: 387.1716 | TR: 125.5923 | TF: 300 | LR: 300 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2235 | ALOSS: -34.9644 | CLOSS: 0.1168 | TLOSS: 0.0001 | TVAL: 0.0058 | AENT: -5.9747 | BCLOSS: 0.0000
+| train          | E: 114 | S: 114000 | R: 407.4943 | TR: 133.6356 | TF: 300 | LR: 300 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2252 | ALOSS: -34.9030 | CLOSS: 0.1169 | TLOSS: -0.0001 | TVAL: 0.0058 | AENT: -6.0230 | BCLOSS: 0.0000
+| train          | E: 115 | S: 115000 | R: 423.5770 | TR: 126.9003 | TF: 300 | LR: 300 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2266 | ALOSS: -34.8611 | CLOSS: 0.1221 | TLOSS: -0.0001 | TVAL: 0.0058 | AENT: -6.0160 | BCLOSS: 0.0000
+| train          | E: 116 | S: 116000 | R: 414.6777 | TR: 138.9247 | TF: 300 | LR: 300 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2285 | ALOSS: -34.8415 | CLOSS: 0.1263 | TLOSS: -0.0003 | TVAL: 0.0060 | AENT: -6.0505 | BCLOSS: 0.0000
+| train          | E: 117 | S: 117000 | R: 414.1091 | TR: 132.8010 | TF: 300 | LR: 300 | NR: 0 | D: 19.6 s | TD: 00.0 s | BR: 0.2302 | ALOSS: -34.8269 | CLOSS: 0.1257 | TLOSS: -0.0002 | TVAL: 0.0062 | AENT: -6.0300 | BCLOSS: 0.0000
+| train          | E: 118 | S: 118000 | R: 418.2890 | TR: 135.7709 | TF: 300 | LR: 300 | NR: 0 | D: 19.2 s | TD: 00.0 s | BR: 0.2318 | ALOSS: -34.8021 | CLOSS: 0.1308 | TLOSS: -0.0002 | TVAL: 0.0063 | AENT: -6.0279 | BCLOSS: 0.0000
+| train          | E: 119 | S: 119000 | R: 428.0629 | TR: 147.6266 | TF: 300 | LR: 300 | NR: 0 | D: 19.5 s | TD: 00.0 s | BR: 0.2338 | ALOSS: -34.8161 | CLOSS: 0.1335 | TLOSS: -0.0001 | TVAL: 0.0064 | AENT: -6.0168 | BCLOSS: 0.0000
+| train          | E: 120 | S: 120000 | R: 418.5437 | TR: 142.2281 | TF: 300 | LR: 300 | NR: 0 | D: 19.7 s | TD: 00.0 s | BR: 0.2353 | ALOSS: -34.8230 | CLOSS: 0.1366 | TLOSS: -0.0001 | TVAL: 0.0065 | AENT: -6.0200 | BCLOSS: 0.0000
+| eval           | E: 120 | S: 120000 | R: 140.9511 | TR: 140.9511 | TS: 0.0000
+| train          | E: 121 | S: 121000 | R: 421.8801 | TR: 142.2356 | TF: 300 | LR: 300 | NR: 0 | D: 30.0 s | TD: 00.0 s | BR: 0.2381 | ALOSS: -34.8428 | CLOSS: 0.1379 | TLOSS: -0.0001 | TVAL: 0.0067 | AENT: -6.0164 | BCLOSS: 0.0000
+| train          | E: 122 | S: 122000 | R: 414.2162 | TR: 147.7561 | TF: 300 | LR: 300 | NR: 0 | D: 19.6 s | TD: 00.0 s | BR: 0.2384 | ALOSS: -34.8770 | CLOSS: 0.1385 | TLOSS: 0.0001 | TVAL: 0.0066 | AENT: -5.9792 | BCLOSS: 0.0000
+| train          | E: 123 | S: 123000 | R: 414.2461 | TR: 154.7285 | TF: 300 | LR: 300 | NR: 0 | D: 19.6 s | TD: 00.0 s | BR: 0.2403 | ALOSS: -34.9058 | CLOSS: 0.1337 | TLOSS: 0.0001 | TVAL: 0.0065 | AENT: -5.9912 | BCLOSS: 0.0000
+| train          | E: 124 | S: 124000 | R: 439.2531 | TR: 143.0537 | TF: 300 | LR: 300 | NR: 0 | D: 18.1 s | TD: 00.0 s | BR: 0.2410 | ALOSS: -34.9336 | CLOSS: 0.1331 | TLOSS: -0.0000 | TVAL: 0.0065 | AENT: -6.0019 | BCLOSS: 0.0000
+| train          | E: 125 | S: 125000 | R: 432.2810 | TR: 148.1987 | TF: 300 | LR: 300 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2433 | ALOSS: -34.9811 | CLOSS: 0.1288 | TLOSS: -0.0000 | TVAL: 0.0065 | AENT: -6.0063 | BCLOSS: 0.0000
+| train          | E: 126 | S: 126000 | R: 434.7360 | TR: 152.0739 | TF: 300 | LR: 300 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2434 | ALOSS: -35.0109 | CLOSS: 0.1297 | TLOSS: -0.0000 | TVAL: 0.0065 | AENT: -6.0029 | BCLOSS: 0.0000
+| train          | E: 127 | S: 127000 | R: 427.7265 | TR: 160.4755 | TF: 300 | LR: 300 | NR: 0 | D: 18.1 s | TD: 00.0 s | BR: 0.2447 | ALOSS: -35.0359 | CLOSS: 0.1315 | TLOSS: 0.0000 | TVAL: 0.0066 | AENT: -5.9944 | BCLOSS: 0.0000
+| train          | E: 128 | S: 128000 | R: 430.4831 | TR: 152.0959 | TF: 300 | LR: 300 | NR: 0 | D: 18.2 s | TD: 00.0 s | BR: 0.2478 | ALOSS: -35.0820 | CLOSS: 0.1286 | TLOSS: -0.0001 | TVAL: 0.0066 | AENT: -6.0149 | BCLOSS: 0.0000
+| train          | E: 129 | S: 129000 | R: 447.9808 | TR: 155.0825 | TF: 300 | LR: 300 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2482 | ALOSS: -35.1183 | CLOSS: 0.1254 | TLOSS: -0.0000 | TVAL: 0.0066 | AENT: -6.0046 | BCLOSS: 0.0000
+| train          | E: 130 | S: 130000 | R: 428.7404 | TR: 153.8447 | TF: 300 | LR: 300 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2502 | ALOSS: -35.1567 | CLOSS: 0.1236 | TLOSS: 0.0002 | TVAL: 0.0065 | AENT: -5.9685 | BCLOSS: 0.0000
+| eval           | E: 130 | S: 130000 | R: 168.4861 | TR: 168.4861 | TS: 0.0000
+Reward function is updated!! ACC: 0.9723809523809525
+| train          | E: 131 | S: 131000 | R: 429.3279 | TR: 169.5866 | TF: 300 | LR: 300 | NR: 0 | D: 39.6 s | TD: 00.0 s | BR: 0.2035 | ALOSS: -35.0783 | CLOSS: 0.1277 | TLOSS: 0.0003 | TVAL: 0.0064 | AENT: -5.9511 | BCLOSS: 0.0000
+| train          | E: 132 | S: 132000 | R: 372.5981 | TR: 154.7247 | TF: 350 | LR: 350 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.2059 | ALOSS: -35.0121 | CLOSS: 0.1238 | TLOSS: 0.0002 | TVAL: 0.0062 | AENT: -5.9717 | BCLOSS: 0.0000
+| train          | E: 133 | S: 133000 | R: 372.8702 | TR: 145.1218 | TF: 350 | LR: 350 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2059 | ALOSS: -34.9450 | CLOSS: 0.1225 | TLOSS: 0.0001 | TVAL: 0.0061 | AENT: -5.9879 | BCLOSS: 0.0000
+| train          | E: 134 | S: 134000 | R: 383.4798 | TR: 157.0671 | TF: 350 | LR: 350 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.2075 | ALOSS: -34.8774 | CLOSS: 0.1166 | TLOSS: 0.0000 | TVAL: 0.0060 | AENT: -5.9923 | BCLOSS: 0.0000
+| train          | E: 135 | S: 135000 | R: 380.7751 | TR: 157.7520 | TF: 350 | LR: 350 | NR: 0 | D: 18.4 s | TD: 00.0 s | BR: 0.2103 | ALOSS: -34.8239 | CLOSS: 0.1098 | TLOSS: 0.0000 | TVAL: 0.0059 | AENT: -5.9922 | BCLOSS: 0.0000
+| train          | E: 136 | S: 136000 | R: 389.1479 | TR: 155.9423 | TF: 350 | LR: 350 | NR: 0 | D: 18.3 s | TD: 00.0 s | BR: 0.2100 | ALOSS: -34.7408 | CLOSS: 0.1098 | TLOSS: -0.0000 | TVAL: 0.0060 | AENT: -6.0035 | BCLOSS: 0.0000
+| train          | E: 137 | S: 137000 | R: 396.4853 | TR: 161.1278 | TF: 350 | LR: 350 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2116 | ALOSS: -34.6751 | CLOSS: 0.1065 | TLOSS: -0.0001 | TVAL: 0.0060 | AENT: -6.0100 | BCLOSS: 0.0000
+| train          | E: 138 | S: 138000 | R: 398.8124 | TR: 159.8151 | TF: 350 | LR: 350 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2139 | ALOSS: -34.6205 | CLOSS: 0.1058 | TLOSS: 0.0003 | TVAL: 0.0059 | AENT: -5.9542 | BCLOSS: 0.0000
+| train          | E: 139 | S: 139000 | R: 401.7741 | TR: 160.3021 | TF: 350 | LR: 350 | NR: 0 | D: 18.5 s | TD: 00.0 s | BR: 0.2142 | ALOSS: -34.5526 | CLOSS: 0.1058 | TLOSS: -0.0002 | TVAL: 0.0059 | AENT: -6.0286 | BCLOSS: 0.0000
+| train          | E: 140 | S: 140000 | R: 415.3686 | TR: 169.2217 | TF: 350 | LR: 350 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2160 | ALOSS: -34.4824 | CLOSS: 0.1047 | TLOSS: 0.0000 | TVAL: 0.0059 | AENT: -5.9932 | BCLOSS: 0.0000
+| eval           | E: 140 | S: 140000 | R: 166.9048 | TR: 166.9048 | TS: 0.0000
+| train          | E: 141 | S: 141000 | R: 393.9946 | TR: 160.2253 | TF: 350 | LR: 350 | NR: 0 | D: 28.6 s | TD: 00.0 s | BR: 0.2168 | ALOSS: -34.4218 | CLOSS: 0.1056 | TLOSS: 0.0000 | TVAL: 0.0060 | AENT: -5.9970 | BCLOSS: 0.0000
+| train          | E: 142 | S: 142000 | R: 408.0900 | TR: 164.0024 | TF: 350 | LR: 350 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2181 | ALOSS: -34.3698 | CLOSS: 0.1018 | TLOSS: 0.0002 | TVAL: 0.0059 | AENT: -5.9680 | BCLOSS: 0.0000
+| train          | E: 143 | S: 143000 | R: 409.3887 | TR: 169.6874 | TF: 350 | LR: 350 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2202 | ALOSS: -34.3210 | CLOSS: 0.1041 | TLOSS: -0.0004 | TVAL: 0.0059 | AENT: -6.0662 | BCLOSS: 0.0000
+| train          | E: 144 | S: 144000 | R: 388.8478 | TR: 160.3250 | TF: 350 | LR: 350 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2220 | ALOSS: -34.2817 | CLOSS: 0.1033 | TLOSS: 0.0002 | TVAL: 0.0060 | AENT: -5.9670 | BCLOSS: 0.0000
+| train          | E: 145 | S: 145000 | R: 414.5231 | TR: 177.3397 | TF: 350 | LR: 350 | NR: 0 | D: 19.0 s | TD: 00.0 s | BR: 0.2226 | ALOSS: -34.2386 | CLOSS: 0.1019 | TLOSS: -0.0001 | TVAL: 0.0060 | AENT: -6.0237 | BCLOSS: 0.0000
+| train          | E: 146 | S: 146000 | R: 414.8855 | TR: 169.5717 | TF: 350 | LR: 350 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.2225 | ALOSS: -34.1955 | CLOSS: 0.0997 | TLOSS: -0.0001 | TVAL: 0.0061 | AENT: -6.0240 | BCLOSS: 0.0000
+| train          | E: 147 | S: 147000 | R: 404.8927 | TR: 192.0423 | TF: 350 | LR: 350 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.2250 | ALOSS: -34.1499 | CLOSS: 0.1017 | TLOSS: 0.0001 | TVAL: 0.0062 | AENT: -5.9877 | BCLOSS: 0.0000
+| train          | E: 148 | S: 148000 | R: 411.3528 | TR: 166.2547 | TF: 350 | LR: 350 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.2263 | ALOSS: -34.1282 | CLOSS: 0.1003 | TLOSS: -0.0001 | TVAL: 0.0062 | AENT: -6.0224 | BCLOSS: 0.0000
+| train          | E: 149 | S: 149000 | R: 395.3590 | TR: 181.9900 | TF: 350 | LR: 350 | NR: 0 | D: 18.2 s | TD: 00.0 s | BR: 0.2275 | ALOSS: -34.0948 | CLOSS: 0.0999 | TLOSS: 0.0001 | TVAL: 0.0062 | AENT: -5.9921 | BCLOSS: 0.0000
+| train          | E: 150 | S: 150000 | R: 408.7248 | TR: 188.3240 | TF: 350 | LR: 350 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2282 | ALOSS: -34.0693 | CLOSS: 0.0990 | TLOSS: -0.0000 | TVAL: 0.0061 | AENT: -6.0008 | BCLOSS: 0.0000
+| eval           | E: 150 | S: 150000 | R: 176.4753 | TR: 176.4753 | TS: 0.0000
+Reward function is updated!! ACC: 0.98
+| train          | E: 151 | S: 151000 | R: 404.0376 | TR: 175.5432 | TF: 350 | LR: 350 | NR: 0 | D: 56.7 s | TD: 00.0 s | BR: 0.2559 | ALOSS: -34.0867 | CLOSS: 0.1141 | TLOSS: -0.0004 | TVAL: 0.0063 | AENT: -6.0588 | BCLOSS: 0.0000
+| train          | E: 152 | S: 152000 | R: 447.8886 | TR: 156.9417 | TF: 400 | LR: 400 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2571 | ALOSS: -34.1325 | CLOSS: 0.1236 | TLOSS: 0.0001 | TVAL: 0.0065 | AENT: -5.9814 | BCLOSS: 0.0000
+| train          | E: 153 | S: 153000 | R: 441.6992 | TR: 154.7896 | TF: 400 | LR: 400 | NR: 0 | D: 18.9 s | TD: 00.0 s | BR: 0.2586 | ALOSS: -34.1876 | CLOSS: 0.1258 | TLOSS: -0.0001 | TVAL: 0.0063 | AENT: -6.0136 | BCLOSS: 0.0000
+| train          | E: 154 | S: 154000 | R: 460.1264 | TR: 156.7173 | TF: 400 | LR: 400 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2581 | ALOSS: -34.2546 | CLOSS: 0.1258 | TLOSS: -0.0001 | TVAL: 0.0065 | AENT: -6.0169 | BCLOSS: 0.0000
+| train          | E: 155 | S: 155000 | R: 445.7191 | TR: 185.8710 | TF: 400 | LR: 400 | NR: 0 | D: 18.5 s | TD: 00.0 s | BR: 0.2603 | ALOSS: -34.3228 | CLOSS: 0.1294 | TLOSS: -0.0001 | TVAL: 0.0066 | AENT: -6.0164 | BCLOSS: 0.0000
+| train          | E: 156 | S: 156000 | R: 455.3489 | TR: 176.7641 | TF: 400 | LR: 400 | NR: 0 | D: 18.6 s | TD: 00.0 s | BR: 0.2625 | ALOSS: -34.4197 | CLOSS: 0.1284 | TLOSS: -0.0002 | TVAL: 0.0067 | AENT: -6.0239 | BCLOSS: 0.0000
+| train          | E: 157 | S: 157000 | R: 439.7700 | TR: 183.6559 | TF: 400 | LR: 400 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2621 | ALOSS: -34.4895 | CLOSS: 0.1305 | TLOSS: 0.0001 | TVAL: 0.0067 | AENT: -5.9856 | BCLOSS: 0.0000
+| train          | E: 158 | S: 158000 | R: 478.3109 | TR: 202.1600 | TF: 400 | LR: 400 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2652 | ALOSS: -34.5958 | CLOSS: 0.1322 | TLOSS: -0.0005 | TVAL: 0.0069 | AENT: -6.0729 | BCLOSS: 0.0000
+| train          | E: 159 | S: 159000 | R: 471.3090 | TR: 191.4341 | TF: 400 | LR: 400 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2656 | ALOSS: -34.6761 | CLOSS: 0.1327 | TLOSS: 0.0002 | TVAL: 0.0069 | AENT: -5.9761 | BCLOSS: 0.0000
+| train          | E: 160 | S: 160000 | R: 453.1281 | TR: 213.9312 | TF: 400 | LR: 400 | NR: 0 | D: 18.7 s | TD: 00.0 s | BR: 0.2666 | ALOSS: -34.7689 | CLOSS: 0.1301 | TLOSS: 0.0001 | TVAL: 0.0069 | AENT: -5.9850 | BCLOSS: 0.0000
+| eval           | E: 160 | S: 160000 | R: 188.0475 | TR: 188.0475 | TS: 0.0000
+| train          | E: 161 | S: 161000 | R: 445.4179 | TR: 180.5115 | TF: 400 | LR: 400 | NR: 0 | D: 28.0 s | TD: 00.0 s | BR: 0.2682 | ALOSS: -34.8550 | CLOSS: 0.1323 | TLOSS: 0.0000 | TVAL: 0.0068 | AENT: -5.9993 | BCLOSS: 0.0000
+| train          | E: 162 | S: 162000 | R: 475.0808 | TR: 204.0756 | TF: 400 | LR: 400 | NR: 0 | D: 18.8 s | TD: 00.0 s | BR: 0.2702 | ALOSS: -34.9439 | CLOSS: 0.1329 | TLOSS: -0.0001 | TVAL: 0.0069 | AENT: -6.0134 | BCLOSS: 0.0000
+slurmstepd: error: *** JOB 35005625 ON gl3224 CANCELLED AT 2025-10-28T13:01:58 DUE TO TIME LIMIT ***

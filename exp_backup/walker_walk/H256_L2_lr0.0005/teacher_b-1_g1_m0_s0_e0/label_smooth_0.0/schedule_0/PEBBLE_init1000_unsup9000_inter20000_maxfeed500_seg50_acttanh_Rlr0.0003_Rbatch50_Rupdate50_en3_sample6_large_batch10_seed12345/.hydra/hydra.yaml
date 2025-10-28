@@ -147,18 +147,18 @@ hydra:
   runtime:
     version: 1.3.2
     version_base: '1.3'
-    cwd: /Users/harshithkethireddy/Active-Querying-on-PEBBLE-main
+    cwd: /nfs/turbo/umd-sabymath/Harshith/Active-Querying-on-PEBBLE
     config_sources:
     - path: hydra.conf
       schema: pkg
       provider: hydra
-    - path: /Users/harshithkethireddy/Active-Querying-on-PEBBLE-main/config
+    - path: /nfs/turbo/umd-sabymath/Harshith/Active-Querying-on-PEBBLE/config
       schema: file
       provider: main
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /Users/harshithkethireddy/Active-Querying-on-PEBBLE-main/exp/walker_walk/H256_L2_lr0.0005/teacher_b-1_g1_m0_s0_e0/label_smooth_0.0/schedule_0/PEBBLE_init1000_unsup9000_inter20000_maxfeed500_seg50_acttanh_Rlr0.0003_Rbatch50_Rupdate50_en3_sample6_large_batch10_seed12345
+    output_dir: /nfs/turbo/umd-sabymath/Harshith/Active-Querying-on-PEBBLE/exp/walker_walk/H256_L2_lr0.0005/teacher_b-1_g1_m0_s0_e0/label_smooth_0.0/schedule_0/PEBBLE_init1000_unsup9000_inter20000_maxfeed500_seg50_acttanh_Rlr0.0003_Rbatch50_Rupdate50_en3_sample6_large_batch10_seed12345
     choices:
       diag_gaussian_actor: base
       agent: sac
