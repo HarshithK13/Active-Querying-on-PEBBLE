@@ -1,8 +1,8 @@
 #!/bin/bash
 export PYTHONUNBUFFERED=1
 #SBATCH --job-name=PEBBLE_sampling
-## SBATCH --output=logs/pebble_min_%j.out
-## SBATCH --error=logs/pebble_min_%j.err
+## SBATCH --output=logs/pebble_%j.out
+## SBATCH --error=logs/pebble_%j.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=32G
@@ -32,7 +32,6 @@ else
 fi
 
 
-echo "==== SBATCH minimal runner ===="
 echo "Job: $SLURM_JOB_ID"
 echo "Repo: $REPO_DIR"
 echo "Target script: $RUN_SCRIPT"

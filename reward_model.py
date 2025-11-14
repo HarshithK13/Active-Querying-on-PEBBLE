@@ -10,6 +10,7 @@ import copy
 import scipy.stats as st
 import os
 import time
+from collections import deque
 
 from scipy.stats import norm
 from sklearn.cluster import KMeans
@@ -106,7 +107,8 @@ class RewardModel:
         self.max_size = max_size
         self.activation = activation
         self.size_segment = size_segment
-        
+        self.max_history_T = 3           # or 4–5 if you want longer flip windows
+        self.pred_history = {} 
         self.capacity = int(capacity)
         self.buffer_seg1 = np.empty((self.capacity, size_segment, self.ds+self.da), dtype=np.float32)
         self.buffer_seg2 = np.empty((self.capacity, size_segment, self.ds+self.da), dtype=np.float32)
@@ -627,7 +629,220 @@ class RewardModel:
             on_policy_scores = np.zeros_like(on_policy_raw)
         
         return on_policy_scores
-    
+
+    def _hash_pair(self, seg1, seg2):
+        # seg1, seg2: (size_segment, ds+da) numpy arrays
+        # Hash to a stable key; you can also use murmurhash or sha1 if you prefer.
+        return hash(seg1.tobytes() + b"|" + seg2.tobytes())
+
+    def _update_prob_history(self, sa_t_1, sa_t_2, probs_now):
+        """
+        sa_t_*: (N, size_segment, ds+da)
+        probs_now: (M, N) current ensemble probs for these N queries
+        """
+        M, N = probs_now.shape
+        for j in range(N):
+            key = self._hash_pair(sa_t_1[j], sa_t_2[j])
+            dq = self.pred_history.get(key)
+            if dq is None:
+                dq = deque(maxlen=self.max_history_T)
+                self.pred_history[key] = dq
+            dq.append(probs_now[:, j].copy())  # store (M,) for this query at this time
+
+    def _collect_probs_history(self, sa_t_1, sa_t_2, require_full_window=False):
+        """
+        Reassemble per-time (M, N) arrays for the current queries from the per-query deques.
+        Returns: list of length T with each element (M, N), or None if insufficient history.
+        """
+        # Find the minimal T that all queries have available
+        N = sa_t_1.shape[0]
+        per_query_hist = []
+        lengths = []
+        for j in range(N):
+            key = self._hash_pair(sa_t_1[j], sa_t_2[j])
+            dq = self.pred_history.get(key)
+            if dq is None or len(dq) < 2:   # need at least 2 checkpoints to count flips
+                return None
+            per_query_hist.append(dq)
+            lengths.append(len(dq))
+
+        # If you want a strict window length = self.max_history_T:
+        if require_full_window and min(lengths) < self.max_history_T:
+            return None
+
+        T = min(lengths)  # align all queries to same shortest history
+        # Build list of (M, N): time-major
+        out = []
+        for t in range(T):
+            # collect per-query (M,) at position -T + t
+            cols = [per_query_hist[j][len(per_query_hist[j]) - T + t] for j in range(N)]
+            # stack to (N, M) then transpose to (M, N)
+            mat = np.stack(cols, axis=0).T
+            out.append(mat)
+        return out  # length T, each (M, N)
+
+
+
+
+
+    def _gather_ensemble_probs(self, sa_t_1, sa_t_2):
+        """
+        Returns: np.array shape (M, N) where M = self.de and N = num_queries
+        """
+        probs = []
+        for member in range(self.de):
+            prob = self.p_hat_member(sa_t_1, sa_t_2, member=member).cpu().numpy()
+            probs.append(prob)
+        return np.array(probs)
+
+    def get_epistemic_uncertainty_entropy(self, sa_t_1, sa_t_2):
+        eps = 1e-12
+        probs = []
+        for member in range(self.de):
+            prob = self.p_hat_member(sa_t_1, sa_t_2, member=member).cpu().numpy()
+            probs.append(prob)
+        
+        probs = np.array(probs) 
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+
+        mu = probs.mean(axis=0)
+        mu = np.clip(mu, eps, 1.0 - eps)
+        uncertainties = - (mu * np.log(mu) + (1.0 - mu) * np.log(1.0 - mu))
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_bald(self, sa_t_1, sa_t_2):
+        eps = 1e-12
+        probs = []
+        for member in range(self.de):
+            prob = self.p_hat_member(sa_t_1, sa_t_2, member=member).cpu().numpy()
+            probs.append(prob)
+        
+        probs = np.array(probs) 
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+
+        M = float(probs.shape[0])
+        mu = probs.mean(axis=0)
+        mu = np.clip(mu, eps, 1.0 - eps)
+        H_mu = - (mu * np.log(mu) + (1.0 - mu) * np.log(1.0 - mu))
+
+        # per-model entropies, then mean
+        per_model_H = - (probs * np.log(np.clip(probs, eps, 1.0)) + (1.0 - probs) * np.log(np.clip(1.0 - probs, eps, 1.0)))
+        H_each = per_model_H.mean(axis=0)
+
+        uncertainties = H_mu - H_each
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_margin(self, sa_t_1, sa_t_2):
+        probs = []
+        for member in range(self.de):
+            prob = self.p_hat_member(sa_t_1, sa_t_2, member=member).cpu().numpy()
+            probs.append(prob)
+        
+        probs = np.array(probs) 
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+
+        mu = probs.mean(axis=0)
+        uncertainties = 1.0 - np.abs(0.5 - mu)  #higher -> more uncertain
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_variance(self, sa_t_1, sa_t_2):
+        probs = []
+        for member in range(self.de):
+            prob = self.p_hat_member(sa_t_1, sa_t_2, member=member).cpu().numpy()
+            probs.append(prob)
+        
+        probs = np.array(probs) 
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+
+        uncertainties = probs.var(axis=0)
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_flip(self, sa_t_1, sa_t_2, probs_history):
+        """
+        probs_history: list of (M,N) across checkpoints, oldest->newest
+        Returns: (uncertainties, consensus_mask)
+        """
+        assert isinstance(probs_history, (list, tuple)) and len(probs_history) >= 2
+        eps = 1e-12
+        votes_hist = []
+        for P in probs_history:
+            P = np.clip(np.asarray(P), eps, 1.0 - eps)
+            votes_hist.append((P > 0.5).mean(axis=0) > 0.5)
+        votes_hist = np.stack(votes_hist, axis=0)  # (T,N)
+        flips = (votes_hist[1:] != votes_hist[:-1]).sum(axis=0).astype(float)
+        uncertainties = flips / (votes_hist.shape[0] - 1 + eps)
+
+        probs_now = np.asarray(probs_history[-1])
+        all_prefer_1 = np.all(probs_now > 0.5, axis=0)
+        all_prefer_2 = np.all(probs_now < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_perturb(self, sa_t_1, sa_t_2, num_perturb=3, noise_std=0.01, clip_range=None):
+        eps = 1e-12
+        base_probs = self._gather_ensemble_probs(sa_t_1, sa_t_2).mean(axis=0)  # (N,)
+        deltas = []
+        for _ in range(num_perturb):
+            n1 = np.random.normal(0.0, noise_std, size=sa_t_1.shape).astype(sa_t_1.dtype)
+            n2 = np.random.normal(0.0, noise_std, size=sa_t_2.shape).astype(sa_t_2.dtype)
+            p1, p2 = sa_t_1 + n1, sa_t_2 + n2
+            if clip_range is not None:
+                lo, hi = clip_range
+                p1 = np.clip(p1, lo, hi); p2 = np.clip(p2, lo, hi)
+            pert_probs = self._gather_ensemble_probs(p1, p2).mean(axis=0)
+            deltas.append(np.abs(pert_probs - base_probs))
+        uncertainties = np.mean(np.stack(deltas, axis=0), axis=0)
+
+        probs_now = self._gather_ensemble_probs(sa_t_1, sa_t_2)
+        all_prefer_1 = np.all(probs_now > 0.5, axis=0)
+        all_prefer_2 = np.all(probs_now < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+        return uncertainties, consensus_mask
+
+    def get_epistemic_uncertainty_query_alignment(self, sa_t_1, sa_t_2, on_policy_weights=None):
+        eps = 1e-12
+        probs = self._gather_ensemble_probs(sa_t_1, sa_t_2)
+        mu = np.clip(probs.mean(axis=0), eps, 1.0 - eps)
+        ent = - (mu*np.log(mu) + (1-mu)*np.log(1-mu))
+        ent_norm = ent / (np.log(2)+eps)
+        var = probs.var(axis=0)
+        if on_policy_weights is None:
+            on_policy_weights = np.ones_like(mu)
+        score = on_policy_weights * var * (1.0 - ent_norm)
+
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+        return score, consensus_mask
+
+    def get_epistemic_uncertainty_annotator_ease(self, sa_t_1, sa_t_2, entropy_cap=0.3):
+        eps = 1e-12
+        probs = self._gather_ensemble_probs(sa_t_1, sa_t_2)
+        mu = np.clip(probs.mean(axis=0), eps, 1.0 - eps)
+        ent = - (mu*np.log(mu) + (1-mu)*np.log(1-mu))
+        ent_norm = ent / (np.log(2)+eps)
+        var = probs.var(axis=0)
+        score = var * (1.0 - ent_norm)
+        if entropy_cap is not None:
+            score = np.where(ent_norm <= entropy_cap, score, 0.0)
+
+        all_prefer_1 = np.all(probs > 0.5, axis=0)
+        all_prefer_2 = np.all(probs < 0.5, axis=0)
+        consensus_mask = ~(all_prefer_1 | all_prefer_2)
+        return score, consensus_mask
+
+
+
+
+
     def get_epistemic_uncertainty(self, sa_t_1, sa_t_2):
         """
         Compute epistemic uncertainty as the length of predicted preference interval.
@@ -658,7 +873,7 @@ class RewardModel:
         uncertainties = np.max(probs, axis=0) - np.min(probs, axis=0)
         
         return uncertainties, consensus_mask
-    
+
     def get_reward_differences(self, sa_t_1, sa_t_2):
         """
         Compute predicted reward difference sequences for query pairs.
@@ -795,9 +1010,67 @@ class RewardModel:
         r_t_1 = np.take(r_t_1, time_index_1, axis=0)
         sa_t_2 = np.take(sa_t_2, time_index_2, axis=0)
         r_t_2 = np.take(r_t_2, time_index_2, axis=0)
-        
+
+
+        # --- Per-query on-policy weights for current candidate pairs ---
+        on_policy_weights = None
+        if policy_log_probs is not None and len(policy_log_probs) > 0:
+            # We assume: policy_log_probs[t] is a 1D array/list of per-step log-probs for trajectory t,
+            # and every trajectory has length len_traj (same as above).
+            num_init = sa_t_1.shape[0]
+            starts_1 = (time_index_1[:, 0] - np.arange(num_init) * len_traj)  # start idx within traj
+            starts_2 = (time_index_2[:, 0] - np.arange(num_init) * len_traj)
+
+            # Sum log-probs over each selected segment window
+            seg_logsum_1 = np.array([
+                np.sum(policy_log_probs[batch_index_1[i]][starts_1[i] : starts_1[i] + self.size_segment])
+                for i in range(num_init)
+            ], dtype=float)
+            seg_logsum_2 = np.array([
+                np.sum(policy_log_probs[batch_index_2[i]][starts_2[i] : starts_2[i] + self.size_segment])
+                for i in range(num_init)
+            ], dtype=float)
+
+            # Rectified z-scores (segment-level, like your compute_on_policy_measure but for windows)
+            all_seg = np.concatenate([seg_logsum_1, seg_logsum_2])
+            mu = all_seg.mean()
+            sigma = all_seg.std()
+            if sigma > 0:
+                z1 = np.maximum(0.0, (seg_logsum_1 - mu) / sigma)
+                z2 = np.maximum(0.0, (seg_logsum_2 - mu) / sigma)
+            else:
+                z1 = np.zeros_like(seg_logsum_1)
+                z2 = np.zeros_like(seg_logsum_2)
+
+            # Pair weight: geometric mean emphasizes “both segments are on-policy”
+            on_policy_weights = np.sqrt(z1 * z2)
+
+            # Normalize to [0,1] for stability; fall back to ones if all zero
+            maxw = on_policy_weights.max() if on_policy_weights.size > 0 else 0.0
+            if maxw > 0:
+                on_policy_weights = on_policy_weights / maxw
+            else:
+                on_policy_weights = np.ones_like(on_policy_weights)
+        else:
+            # No policy logs → just use uniform weights
+            on_policy_weights = np.ones(sa_t_1.shape[0], dtype=float)
+
+
+        probs_now = self._gather_ensemble_probs(sa_t_1, sa_t_2)
+        self._update_prob_history(sa_t_1, sa_t_2, probs_now)
+        probs_history = self._collect_probs_history(sa_t_1, sa_t_2, require_full_window=False)
+        if probs_history is not None:
+            uncertainties, consensus_mask = self.get_epistemic_uncertainty_flip(sa_t_1, sa_t_2, probs_history)
+        else:
+            uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
+
         # Stage 2: Uncertain query selection (ξU)
-        uncertainties, consensus_mask = self.get_epistemic_uncertainty(sa_t_1, sa_t_2)
+        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
+        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_perturb(sa_t_1, sa_t_2, num_perturb=3, noise_std=0.01)
+        # optional: on_policy_weights = <np.ndarray shape (N,)>
+        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_query_alignment(sa_t_1, sa_t_2, on_policy_weights=on_policy_weights)  # or ... , on_policy_weights=on_policy_weights
+        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_annotator_ease(sa_t_1, sa_t_2, entropy_cap=0.3)
+
         
         # Filter out consensual queries
         if np.sum(consensus_mask) == 0:

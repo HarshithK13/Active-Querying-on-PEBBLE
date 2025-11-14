@@ -87,7 +87,7 @@ class Workspace(object):
 
             self.wandb_run = wandb.init(
                 project="BPref_Active_Querying",
-                group="Uniform sampling",
+                group="DUO - Flip",
                 name=run_name,
                 config=OmegaConf.to_container(cfg, resolve=True),
                 reinit=True,  # optional but handy for repeated runs in same process
