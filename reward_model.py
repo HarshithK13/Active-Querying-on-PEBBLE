@@ -11,13 +11,28 @@ import scipy.stats as st
 import os
 import time
 from collections import deque
-
+from types import SimpleNamespace
 from scipy.stats import norm
 from sklearn.cluster import KMeans
 from kneed import KneeLocator
 
-device = 'cpu'
-# device = 'cuda'
+# device = 'cpu'
+device = 'cuda'
+
+class LatentSegmentEncoder(nn.Module):
+    def __init__(self, input_dim, latent_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, latent_dim),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
 
 def gen_net(in_size=1, out_size=1, H=128, n_layers=3, activation='tanh'):
     net = []
@@ -93,7 +108,8 @@ class RewardModel:
                  teacher_beta=-1, teacher_gamma=1, 
                  teacher_eps_mistake=0, 
                  teacher_eps_skip=0, 
-                 teacher_eps_equal=0):
+                 teacher_eps_equal=0, 
+                 cfg=None):
         
         # train data is trajectories, must process to sa and s..   
         self.ds = ds
@@ -143,7 +159,11 @@ class RewardModel:
         
         self.label_margin = label_margin
         self.label_target = 1 - 2*self.label_margin
-    
+
+        if cfg is None:
+            cfg = SimpleNamespace()
+        self.cfg = cfg
+
     def softXEnt_loss(self, input, target):
         logprobs = torch.nn.functional.log_softmax (input, dim = 1)
         return  -(target * logprobs).sum() / input.shape[0]
@@ -681,6 +701,179 @@ class RewardModel:
             out.append(mat)
         return out  # length T, each (M, N)
 
+    def init_latent_training(self, lr=1e-4, temperature=0.1):
+        """
+        Enable online training of the latent encoder with InfoNCE.
+        Call this AFTER load_latent_encoder().
+        """
+        if getattr(self, "latent_encoder", None) is None:
+            print("[LatentEncoder] init_latent_training called but latent_encoder is None")
+            return
+
+        self.temperature = temperature
+
+        # Make sure encoder is trainable
+        self.latent_encoder.train()
+        for p in self.latent_encoder.parameters():
+            p.requires_grad = True
+
+        self.latent_optimizer = torch.optim.Adam(
+            self.latent_encoder.parameters(), lr=lr
+        )
+
+        print("[LatentEncoder] Online training enabled")
+        print(f"[LatentEncoder] LR={lr}, Temp={temperature}")
+
+
+
+    def latent_infonce_loss(self, z_anchor, z_pos, z_neg):
+        """
+        z_anchor: (B, d)
+        z_pos:    (B, d)
+        z_neg:    (B, d) or (B, K, d)
+        """
+
+        # Cosine similarities
+        sim_pos = torch.nn.functional.cosine_similarity(z_anchor, z_pos)
+
+        # If negative is shape (B, d), expand to (B, 1, d)
+        if z_neg.dim() == 2:
+            z_neg = z_neg.unsqueeze(1)
+
+        sim_neg = torch.nn.functional.cosine_similarity(
+            z_anchor.unsqueeze(1),  # (B,1,d)
+            z_neg,                  # (B,K,d)
+            dim=-1
+        )
+
+        # Build logits
+        logits = torch.cat([sim_pos.unsqueeze(1), sim_neg], dim=1)
+        logits = logits / self.temperature
+
+        # Positive is index 0
+        labels = torch.zeros(
+            logits.size(0), dtype=torch.long, device=logits.device
+        )
+
+        loss = torch.nn.functional.cross_entropy(logits, labels)
+
+        print(f"[LatentEncoder] InfoNCE loss={loss.item():.4f}")
+
+        return loss
+
+    def train_latent_encoder(self, z_anchor, z_pos, z_neg):
+        loss = self.latent_infonce_loss(z_anchor, z_pos, z_neg)
+
+        self.latent_optimizer.zero_grad()
+        loss.backward()
+        self.latent_optimizer.step()
+
+        print("[LatentEncoder] Updated encoder weights")
+
+        return loss.item()
+
+
+
+    def load_latent_encoder(self, ckpt_path, device):
+        """
+        Loading a pre-trained segment encoder from an autoencoder checkpoint.
+        Handles both:
+          - state_dict with keys "0.weight", "2.bias", ...
+          - state_dict with keys "net.0.weight", ...
+        """
+        if not os.path.exists(ckpt_path):
+            print(f"[LatentEncoder] No checkpoint found at {ckpt_path}. Skipping.")
+            self.latent_encoder = None
+            return
+
+        ckpt = torch.load(ckpt_path, map_location=device)
+
+        input_dim   = ckpt["input_dim"]
+        latent_dim  = ckpt["latent_dim"]
+        seg_len     = ckpt["segment_len"]
+        feature_dim = ckpt["feature_dim"]
+
+        if hasattr(self, "size_segment") and seg_len != self.size_segment:
+            print(f"[LatentEncoder][Warning] segment_len mismatch: "
+                  f"ckpt={seg_len}, reward_model={self.size_segment}")
+        if hasattr(self, "ds") and hasattr(self, "da") and feature_dim != (self.ds + self.da):
+            print(f"[LatentEncoder][Warning] feature_dim mismatch: "
+                  f"ckpt={feature_dim}, reward_model={self.ds + self.da}")
+
+        encoder = LatentSegmentEncoder(input_dim, latent_dim)
+
+        # --- Fix key mismatch between checkpoint and LatentSegmentEncoder ---
+        raw_state = ckpt["encoder_state_dict"]
+
+        # If the keys look like "0.weight" instead of "net.0.weight", add the prefix.
+        if not any(k.startswith("net.") for k in raw_state.keys()):
+            print("[LatentEncoder] Detected flat keys in state_dict, "
+                  "adding 'net.' prefix to match LatentSegmentEncoder.")
+            fixed_state = {}
+            for k, v in raw_state.items():
+                fixed_state[f"net.{k}"] = v
+            raw_state = fixed_state
+
+        try:
+            encoder.load_state_dict(raw_state, strict=True)
+        except RuntimeError as e:
+            print(f"[LatentEncoder] Still failed to load state_dict: {e}")
+            print("[LatentEncoder] Disabling latent encoder and falling back to baseline DUO.")
+            self.latent_encoder = None
+            return
+
+        encoder.to(device)
+        encoder.train()   # we want it trainable online
+
+        self.latent_encoder   = encoder
+        self.latent_input_dim = input_dim
+        self.latent_dim       = latent_dim
+        self.latent_seg_len   = seg_len
+        self.latent_feat_dim  = feature_dim
+        self.latent_device    = device
+
+        print(f"[LatentEncoder] Loaded encoder from {ckpt_path}")
+        print(f"[LatentEncoder] input_dim={input_dim}, latent_dim={latent_dim}, "
+              f"seg_len={seg_len}, feat_dim={feature_dim}")
+
+        # Kick off online training setup
+        lr  = getattr(self.cfg, "latent_lr", 1e-3)
+        tau = getattr(self.cfg, "latent_temperature", 0.1)
+        self.init_latent_training(lr=lr, temperature=tau)
+
+
+
+
+
+    def encode_segments_latent(self, segments, grad: bool = False):
+        """
+        segments: (N, T, ds+da) as np.ndarray or torch.Tensor
+
+        grad=False: use no_grad() (for DUO Stage 3 clustering).
+        grad=True : keep computation graph (for InfoNCE training).
+        """
+        if getattr(self, "latent_encoder", None) is None:
+            raise RuntimeError(
+                "encode_segments_latent called but latent_encoder is None. "
+                "Did you call load_latent_encoder()?"
+            )
+
+        if isinstance(segments, np.ndarray):
+            x = torch.from_numpy(segments.astype(np.float32))
+        else:
+            x = segments.float()
+
+        N, T, D = x.shape
+        x = x.view(N, T * D).to(self.latent_device)
+
+        if grad:
+            z = self.latent_encoder(x)          # keep graph for backprop
+        else:
+            with torch.no_grad():
+                z = self.latent_encoder(x)      # just features
+
+        return z
+
 
 
 
@@ -959,79 +1152,255 @@ class RewardModel:
         
         return cluster_centers_idx, optimal_k
     
-    def duo_sampling(self, policy_log_probs=None):
-        num_init = self.mb_size * self.large_batch
+    # def duo_sampling(self, policy_log_probs=None):
+    #     print("Running Duo sampling...")
+    #     num_init = self.mb_size * self.large_batch
         
-        # Stage 1: On-policy query generation (ξO)
-        if policy_log_probs is not None and len(policy_log_probs) > 0:
-            # Compute on-policy scores
-            on_policy_scores = self.compute_on_policy_measure(self.inputs, policy_log_probs)
+    #     # Stage 1: On-policy query generation (ξO)
+    #     if policy_log_probs is not None and len(policy_log_probs) > 0:
+    #         # Compute on-policy scores
+    #         on_policy_scores = self.compute_on_policy_measure(self.inputs, policy_log_probs)
             
-            # Normalize to probabilities
+    #         # Normalize to probabilities
+    #         if np.sum(on_policy_scores) > 0:
+    #             sampling_probs = on_policy_scores / np.sum(on_policy_scores)
+    #         else:
+    #             sampling_probs = None
+    #     else:
+    #         sampling_probs = None
+        
+    #     # Generate queries with on-policy bias
+    #     len_traj, max_len = len(self.inputs[0]), len(self.inputs)
+    #     if len(self.inputs[-1]) < len_traj:
+    #         max_len = max_len - 1
+        
+    #     train_inputs = np.array(self.inputs[:max_len])
+    #     train_targets = np.array(self.targets[:max_len])
+        
+    #     # Sample trajectories with on-policy bias
+    #     if sampling_probs is not None:
+    #         batch_index_1 = np.random.choice(max_len, size=num_init, replace=True, p=sampling_probs[:max_len])
+    #         batch_index_2 = np.random.choice(max_len, size=num_init, replace=True, p=sampling_probs[:max_len])
+    #     else:
+    #         batch_index_1 = np.random.choice(max_len, size=num_init, replace=True)
+    #         batch_index_2 = np.random.choice(max_len, size=num_init, replace=True)
+        
+    #     sa_t_1 = train_inputs[batch_index_1]
+    #     sa_t_2 = train_inputs[batch_index_2]
+    #     r_t_1 = train_targets[batch_index_1]
+    #     r_t_2 = train_targets[batch_index_2]
+        
+    #     # Generate segment indices
+    #     sa_t_1 = sa_t_1.reshape(-1, sa_t_1.shape[-1])
+    #     r_t_1 = r_t_1.reshape(-1, r_t_1.shape[-1])
+    #     sa_t_2 = sa_t_2.reshape(-1, sa_t_2.shape[-1])
+    #     r_t_2 = r_t_2.reshape(-1, r_t_2.shape[-1])
+        
+    #     time_index = np.array([list(range(i*len_traj, i*len_traj+self.size_segment)) for i in range(num_init)])
+    #     time_index_1 = time_index + np.random.choice(len_traj-self.size_segment, size=num_init, replace=True).reshape(-1,1)
+    #     time_index_2 = time_index + np.random.choice(len_traj-self.size_segment, size=num_init, replace=True).reshape(-1,1)
+        
+    #     sa_t_1 = np.take(sa_t_1, time_index_1, axis=0)
+    #     r_t_1 = np.take(r_t_1, time_index_1, axis=0)
+    #     sa_t_2 = np.take(sa_t_2, time_index_2, axis=0)
+    #     r_t_2 = np.take(r_t_2, time_index_2, axis=0)
+
+
+    #     # --- Per-query on-policy weights for current candidate pairs ---
+    #     on_policy_weights = None
+    #     if policy_log_probs is not None and len(policy_log_probs) > 0:
+    #         # We assume: policy_log_probs[t] is a 1D array/list of per-step log-probs for trajectory t,
+    #         # and every trajectory has length len_traj (same as above).
+    #         num_init = sa_t_1.shape[0]
+    #         starts_1 = (time_index_1[:, 0] - np.arange(num_init) * len_traj)  # start idx within traj
+    #         starts_2 = (time_index_2[:, 0] - np.arange(num_init) * len_traj)
+
+    #         # Sum log-probs over each selected segment window
+    #         seg_logsum_1 = np.array([
+    #             np.sum(policy_log_probs[batch_index_1[i]][starts_1[i] : starts_1[i] + self.size_segment])
+    #             for i in range(num_init)
+    #         ], dtype=float)
+    #         seg_logsum_2 = np.array([
+    #             np.sum(policy_log_probs[batch_index_2[i]][starts_2[i] : starts_2[i] + self.size_segment])
+    #             for i in range(num_init)
+    #         ], dtype=float)
+
+    #         # Rectified z-scores (segment-level, like your compute_on_policy_measure but for windows)
+    #         all_seg = np.concatenate([seg_logsum_1, seg_logsum_2])
+    #         mu = all_seg.mean()
+    #         sigma = all_seg.std()
+    #         if sigma > 0:
+    #             z1 = np.maximum(0.0, (seg_logsum_1 - mu) / sigma)
+    #             z2 = np.maximum(0.0, (seg_logsum_2 - mu) / sigma)
+    #         else:
+    #             z1 = np.zeros_like(seg_logsum_1)
+    #             z2 = np.zeros_like(seg_logsum_2)
+
+    #         # Pair weight: geometric mean emphasizes “both segments are on-policy”
+    #         on_policy_weights = np.sqrt(z1 * z2)
+
+    #         # Normalize to [0,1] for stability; fall back to ones if all zero
+    #         maxw = on_policy_weights.max() if on_policy_weights.size > 0 else 0.0
+    #         if maxw > 0:
+    #             on_policy_weights = on_policy_weights / maxw
+    #         else:
+    #             on_policy_weights = np.ones_like(on_policy_weights)
+    #     else:
+    #         # No policy logs → just use uniform weights
+    #         on_policy_weights = np.ones(sa_t_1.shape[0], dtype=float)
+
+
+    #     # probs_now = self._gather_ensemble_probs(sa_t_1, sa_t_2)
+    #     # self._update_prob_history(sa_t_1, sa_t_2, probs_now)
+    #     # probs_history = self._collect_probs_history(sa_t_1, sa_t_2, require_full_window=False)
+    #     # if probs_history is not None:
+    #     #     uncertainties, consensus_mask = self.get_epistemic_uncertainty_flip(sa_t_1, sa_t_2, probs_history)
+    #     # else:
+    #     #     uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
+
+    #     # Stage 2: Uncertain query selection (ξU)
+    #     uncertainties, consensus_mask = self.get_epistemic_uncertainty(sa_t_1, sa_t_2)
+    #     # uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
+    #     # uncertainties, consensus_mask = self.get_epistemic_uncertainty_perturb(sa_t_1, sa_t_2, num_perturb=3, noise_std=0.01)
+    #     # optional: on_policy_weights = <np.ndarray shape (N,)>
+    #     # uncertainties, consensus_mask = self.get_epistemic_uncertainty_query_alignment(sa_t_1, sa_t_2, on_policy_weights=on_policy_weights)  # or ... , on_policy_weights=on_policy_weights
+    #     # uncertainties, consensus_mask = self.get_epistemic_uncertainty_annotator_ease(sa_t_1, sa_t_2, entropy_cap=0.3)
+
+        
+    #     # Filter out consensual queries
+    #     if np.sum(consensus_mask) == 0:
+    #         # All queries are consensual, fall back to top uncertain ones
+    #         num_uncertain = min(self.mb_size * 2, num_init)
+    #         top_uncertain_idx = (-uncertainties).argsort()[:num_uncertain]
+    #     else:
+    #         # Keep only non-consensual queries and sort by uncertainty
+    #         non_consensual_idx = np.where(consensus_mask)[0]
+    #         non_consensual_uncertainties = uncertainties[consensus_mask]
+            
+    #         # Sort by uncertainty and keep top candidates
+    #         num_uncertain = min(self.mb_size * 2, len(non_consensual_idx))
+    #         sorted_idx = (-non_consensual_uncertainties).argsort()[:num_uncertain]
+    #         top_uncertain_idx = non_consensual_idx[sorted_idx]
+        
+    #     sa_t_1 = sa_t_1[top_uncertain_idx]
+    #     sa_t_2 = sa_t_2[top_uncertain_idx]
+    #     r_t_1 = r_t_1[top_uncertain_idx]
+    #     r_t_2 = r_t_2[top_uncertain_idx]
+        
+    #     # Stage 3: Diverse query selection (ξD)
+    #     # Compute reward difference features
+    #     # reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
+    #     mode = getattr(self.cfg, "duo_stage3", "baseline")  # default to baseline
+
+    #     if mode == "latent" and getattr(self, "latent_encoder", None) is not None:
+    #         z1 = self.encode_segments_latent(sa_t_1)
+    #         z2 = self.encode_segments_latent(sa_t_2)
+    #         print("In latent space!!")
+    #         u = torch.cat([z1, z2, z1 - z2], dim=-1)
+    #         features = u.detach().cpu().numpy()
+    #     else:
+    #         print("baseline mode!")
+    #         reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
+    #         features = reward_diffs
+        
+    #     # Apply adaptive K-means clustering on chosen feature space
+    #     num_diverse = min(self.mb_size, len(features))
+    #     if len(features) <= num_diverse:
+    #         # Not enough queries, use all
+    #         selected_index = list(range(len(features)))
+    #     else:
+    #         selected_index, _ = self.adaptive_kmeans_clustering(features, max_k=num_diverse)
+
+        
+    #     sa_t_1 = sa_t_1[selected_index]
+    #     sa_t_2 = sa_t_2[selected_index]
+    #     r_t_1 = r_t_1[selected_index]
+    #     r_t_2 = r_t_2[selected_index]
+        
+    #     # Get labels
+    #     sa_t_1, sa_t_2, r_t_1, r_t_2, labels = self.get_label(
+    #         sa_t_1, sa_t_2, r_t_1, r_t_2)
+        
+    #     if len(labels) > 0:
+    #         self.put_queries(sa_t_1, sa_t_2, labels)
+        
+    #     return len(labels)
+
+    def duo_sampling(self, policy_log_probs=None):
+        print("Running Duo sampling...")
+        num_init = self.mb_size * self.large_batch
+
+        # ----------------- Stage 1: On-policy query generation (ξO) -----------------
+        if policy_log_probs is not None and len(policy_log_probs) > 0:
+            on_policy_scores = self.compute_on_policy_measure(self.inputs, policy_log_probs)
             if np.sum(on_policy_scores) > 0:
                 sampling_probs = on_policy_scores / np.sum(on_policy_scores)
             else:
                 sampling_probs = None
         else:
             sampling_probs = None
-        
-        # Generate queries with on-policy bias
+
         len_traj, max_len = len(self.inputs[0]), len(self.inputs)
         if len(self.inputs[-1]) < len_traj:
             max_len = max_len - 1
-        
+
         train_inputs = np.array(self.inputs[:max_len])
         train_targets = np.array(self.targets[:max_len])
-        
-        # Sample trajectories with on-policy bias
+
+        # sample trajectories (with or without on-policy bias)
         if sampling_probs is not None:
-            batch_index_1 = np.random.choice(max_len, size=num_init, replace=True, p=sampling_probs[:max_len])
-            batch_index_2 = np.random.choice(max_len, size=num_init, replace=True, p=sampling_probs[:max_len])
+            batch_index_1 = np.random.choice(max_len, size=num_init, replace=True,
+                                             p=sampling_probs[:max_len])
+            batch_index_2 = np.random.choice(max_len, size=num_init, replace=True,
+                                             p=sampling_probs[:max_len])
         else:
             batch_index_1 = np.random.choice(max_len, size=num_init, replace=True)
             batch_index_2 = np.random.choice(max_len, size=num_init, replace=True)
-        
+
         sa_t_1 = train_inputs[batch_index_1]
         sa_t_2 = train_inputs[batch_index_2]
         r_t_1 = train_targets[batch_index_1]
         r_t_2 = train_targets[batch_index_2]
-        
-        # Generate segment indices
+
+        # flatten over time so we can pick sub-segments
         sa_t_1 = sa_t_1.reshape(-1, sa_t_1.shape[-1])
         r_t_1 = r_t_1.reshape(-1, r_t_1.shape[-1])
         sa_t_2 = sa_t_2.reshape(-1, sa_t_2.shape[-1])
         r_t_2 = r_t_2.reshape(-1, r_t_2.shape[-1])
-        
-        time_index = np.array([list(range(i*len_traj, i*len_traj+self.size_segment)) for i in range(num_init)])
-        time_index_1 = time_index + np.random.choice(len_traj-self.size_segment, size=num_init, replace=True).reshape(-1,1)
-        time_index_2 = time_index + np.random.choice(len_traj-self.size_segment, size=num_init, replace=True).reshape(-1,1)
-        
+
+        time_index = np.array([
+            list(range(i * len_traj, i * len_traj + self.size_segment))
+            for i in range(num_init)
+        ])
+        time_index_1 = time_index + np.random.choice(
+            len_traj - self.size_segment, size=num_init, replace=True
+        ).reshape(-1, 1)
+        time_index_2 = time_index + np.random.choice(
+            len_traj - self.size_segment, size=num_init, replace=True
+        ).reshape(-1, 1)
+
         sa_t_1 = np.take(sa_t_1, time_index_1, axis=0)
         r_t_1 = np.take(r_t_1, time_index_1, axis=0)
         sa_t_2 = np.take(sa_t_2, time_index_2, axis=0)
         r_t_2 = np.take(r_t_2, time_index_2, axis=0)
 
-
-        # --- Per-query on-policy weights for current candidate pairs ---
-        on_policy_weights = None
+        # per-pair on-policy weights (segment-level)
         if policy_log_probs is not None and len(policy_log_probs) > 0:
-            # We assume: policy_log_probs[t] is a 1D array/list of per-step log-probs for trajectory t,
-            # and every trajectory has length len_traj (same as above).
             num_init = sa_t_1.shape[0]
-            starts_1 = (time_index_1[:, 0] - np.arange(num_init) * len_traj)  # start idx within traj
+            starts_1 = (time_index_1[:, 0] - np.arange(num_init) * len_traj)
             starts_2 = (time_index_2[:, 0] - np.arange(num_init) * len_traj)
 
-            # Sum log-probs over each selected segment window
             seg_logsum_1 = np.array([
-                np.sum(policy_log_probs[batch_index_1[i]][starts_1[i] : starts_1[i] + self.size_segment])
+                np.sum(policy_log_probs[batch_index_1[i]][
+                       starts_1[i]:starts_1[i] + self.size_segment])
                 for i in range(num_init)
             ], dtype=float)
             seg_logsum_2 = np.array([
-                np.sum(policy_log_probs[batch_index_2[i]][starts_2[i] : starts_2[i] + self.size_segment])
+                np.sum(policy_log_probs[batch_index_2[i]][
+                       starts_2[i]:starts_2[i] + self.size_segment])
                 for i in range(num_init)
             ], dtype=float)
 
-            # Rectified z-scores (segment-level, like your compute_on_policy_measure but for windows)
             all_seg = np.concatenate([seg_logsum_1, seg_logsum_2])
             mu = all_seg.mean()
             sigma = all_seg.std()
@@ -1042,82 +1411,191 @@ class RewardModel:
                 z1 = np.zeros_like(seg_logsum_1)
                 z2 = np.zeros_like(seg_logsum_2)
 
-            # Pair weight: geometric mean emphasizes “both segments are on-policy”
             on_policy_weights = np.sqrt(z1 * z2)
-
-            # Normalize to [0,1] for stability; fall back to ones if all zero
             maxw = on_policy_weights.max() if on_policy_weights.size > 0 else 0.0
             if maxw > 0:
                 on_policy_weights = on_policy_weights / maxw
             else:
                 on_policy_weights = np.ones_like(on_policy_weights)
         else:
-            # No policy logs → just use uniform weights
             on_policy_weights = np.ones(sa_t_1.shape[0], dtype=float)
 
+        # ----------------- Stage 2: Uncertain query selection (ξU) -----------------
+        uncertainties, consensus_mask = self.get_epistemic_uncertainty(sa_t_1, sa_t_2)
+        # (you can swap this with other uncertainty variants if you want)
 
-        probs_now = self._gather_ensemble_probs(sa_t_1, sa_t_2)
-        self._update_prob_history(sa_t_1, sa_t_2, probs_now)
-        probs_history = self._collect_probs_history(sa_t_1, sa_t_2, require_full_window=False)
-        if probs_history is not None:
-            uncertainties, consensus_mask = self.get_epistemic_uncertainty_flip(sa_t_1, sa_t_2, probs_history)
-        else:
-            uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
-
-        # Stage 2: Uncertain query selection (ξU)
-        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_variance(sa_t_1, sa_t_2)
-        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_perturb(sa_t_1, sa_t_2, num_perturb=3, noise_std=0.01)
-        # optional: on_policy_weights = <np.ndarray shape (N,)>
-        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_query_alignment(sa_t_1, sa_t_2, on_policy_weights=on_policy_weights)  # or ... , on_policy_weights=on_policy_weights
-        # uncertainties, consensus_mask = self.get_epistemic_uncertainty_annotator_ease(sa_t_1, sa_t_2, entropy_cap=0.3)
-
-        
-        # Filter out consensual queries
         if np.sum(consensus_mask) == 0:
-            # All queries are consensual, fall back to top uncertain ones
             num_uncertain = min(self.mb_size * 2, num_init)
             top_uncertain_idx = (-uncertainties).argsort()[:num_uncertain]
         else:
-            # Keep only non-consensual queries and sort by uncertainty
             non_consensual_idx = np.where(consensus_mask)[0]
-            non_consensual_uncertainties = uncertainties[consensus_mask]
-            
-            # Sort by uncertainty and keep top candidates
+            non_cons_unc = uncertainties[consensus_mask]
             num_uncertain = min(self.mb_size * 2, len(non_consensual_idx))
-            sorted_idx = (-non_consensual_uncertainties).argsort()[:num_uncertain]
+            sorted_idx = (-non_cons_unc).argsort()[:num_uncertain]
             top_uncertain_idx = non_consensual_idx[sorted_idx]
-        
+
         sa_t_1 = sa_t_1[top_uncertain_idx]
         sa_t_2 = sa_t_2[top_uncertain_idx]
         r_t_1 = r_t_1[top_uncertain_idx]
         r_t_2 = r_t_2[top_uncertain_idx]
-        
-        # Stage 3: Diverse query selection (ξD)
-        # Compute reward difference features
-        reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
-        
-        # Apply adaptive K-means clustering
-        num_diverse = min(self.mb_size, len(reward_diffs))
-        if len(reward_diffs) <= num_diverse:
-            # Not enough queries, use all
-            selected_index = list(range(len(reward_diffs)))
+        on_policy_weights = on_policy_weights[top_uncertain_idx]
+
+        # ----------------- Stage 3: Diverse query selection (ξD) -----------------
+        # mode = getattr(self.cfg, "duo_stage3", "baseline")  # "baseline" or "latent"
+        # if mode == "latent" and getattr(self, "latent_encoder", None) is not None:
+        #     print("[DUO] Stage3 using LATENT features")
+        #     z1 = self.encode_segments_latent(sa_t_1, grad=False)
+        #     z2 = self.encode_segments_latent(sa_t_2, grad=False)
+        #     u = torch.cat([z1, z2, z1 - z2], dim=-1)
+        #     features = u.detach().cpu().numpy()
+        # else:
+        #     print("[DUO] Stage3 using BASELINE reward_diffs")
+        #     reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
+        #     features = reward_diffs
+
+        mode = getattr(self.cfg, "duo_stage3", "baseline")  # "baseline", "latent", "latent_hybrid"
+        reward_lambda = getattr(self.cfg, "duo_reward_lambda", 0.1)
+        print("mode is:", mode)
+        print("latent_encoder is None? ->", getattr(self, "latent_encoder", None) is None)
+        print("latent_encoder object:", getattr(self, "latent_encoder", None))
+
+        # if mode == "latent" and getattr(self, "latent_encoder", None) is not None:
+        #     # --- pure latent DUO: [z1, z2, z1 - z2] ---
+        #     print("latent mode: ", mode)
+        #     print("[DUO] Stage3 using LATENT features")
+        #     z1 = self.encode_segments_latent(sa_t_1, grad=False)   # (N, d)
+        #     z2 = self.encode_segments_latent(sa_t_2, grad=False)   # (N, d)
+        #     u  = torch.cat([z1, z2, z1 - z2], dim=-1)              # (N, 3d)
+        #     features = u.detach().cpu().numpy()
+
+        # elif mode in ("latent_hybrid", "latent_reward") and getattr(self, "latent_encoder", None) is not None:
+        #     # --- hybrid: latent geometry + reward difference term ---
+        #     print("hybrid mode: ", mode)
+        #     print("[DUO] Stage3 using LATENT + REWARD_DIFF features")
+
+        #     # 1) latent part: [z1, z2, z1 - z2]
+        #     z1 = self.encode_segments_latent(sa_t_1, grad=False)   # (N, d)
+        #     z2 = self.encode_segments_latent(sa_t_2, grad=False)   # (N, d)
+        #     u  = torch.cat([z1, z2, z1 - z2], dim=-1)              # (N, 3d)
+        #     latent_feats = u.detach().cpu().numpy()                # (N, 3d)
+
+        #     # 2) reward difference in original space (using *true* segment rewards)
+        #     # r_t_* shape: (N, size_segment, 1)
+        #     sum_r1 = r_t_1.sum(axis=1)    # (N, 1)
+        #     sum_r2 = r_t_2.sum(axis=1)    # (N, 1)
+        #     delta_r = sum_r1 - sum_r2     # (N, 1), signed reward diff
+
+        #     # normalize ΔR to avoid blowing up K-means
+        #     mu = delta_r.mean()
+        #     sigma = delta_r.std()
+        #     if sigma > 1e-8:
+        #         delta_r_norm = (delta_r - mu) / sigma
+        #     else:
+        #         delta_r_norm = np.zeros_like(delta_r)
+
+        #     # 3) concat latent + scaled reward diff: [latent, λ * ΔR_norm]
+        #     hybrid_feats = np.concatenate(
+        #         [latent_feats, reward_lambda * delta_r_norm],
+        #         axis=1
+        #     )  # (N, 3d + 1)
+
+        #     features = hybrid_feats
+
+        # else:
+        #     # --- baseline DUO Stage3: reward_diffs only ---
+        #     print("[DUO] Stage3 using BASELINE reward_diffs")
+        #     reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
+        #     features = reward_diffs
+
+
+
+        if mode == "latent" and getattr(self, "latent_encoder", None) is not None:
+            print("[DUO] Stage3 using LATENT features")
+
+            # Encode both segments
+            z1 = self.encode_segments_latent(sa_t_1, grad=False)   # (N, d)
+            z2 = self.encode_segments_latent(sa_t_2, grad=False)   # (N, d)
+            print("z1 shape: ", z1.shape)
+            print("z2 shape: ", z2.shape)
+            # Base DUO feature: [z1, z2, z1 - z2]
+            u = torch.cat([z1, z2, z1 - z2], dim=-1)               # (N, 3d)
+            print("u shape: ", u.shape)
+            # NEW: cosine similarity between z1 and z2 as an extra scalar feature
+            cos_sim = F.cosine_similarity(z1, z2, dim=-1)          # (N,)
+            cos_sim = cos_sim.unsqueeze(1)                         # (N, 1)
+            print("cos_sim shape: ", cos_sim.shape)
+            # Final feature: [z1, z2, z1 - z2, cos(z1,z2)]
+            u_with_cos = torch.cat([u, cos_sim], dim=-1)           # (N, 3d+1)
+
+            features = u_with_cos.detach().cpu().numpy()
         else:
-            selected_index, _ = self.adaptive_kmeans_clustering(reward_diffs, max_k=num_diverse)
-        
+            print("[DUO] Stage3 using BASELINE reward_diffs")
+            reward_diffs = self.get_reward_differences(sa_t_1, sa_t_2)
+            features = reward_diffs
+
+
+        num_diverse = min(self.mb_size, len(features))
+        if len(features) <= num_diverse:
+            selected_index = list(range(len(features)))
+        else:
+            selected_index, k_used = self.adaptive_kmeans_clustering(
+                features, max_k=num_diverse
+            )
+            print(f"[DUO] adaptive_kmeans selected K={k_used}, "
+                  f"from {len(features)} candidates")
+
         sa_t_1 = sa_t_1[selected_index]
         sa_t_2 = sa_t_2[selected_index]
         r_t_1 = r_t_1[selected_index]
         r_t_2 = r_t_2[selected_index]
-        
-        # Get labels
+
+        # ----------------- Get labels from teacher -----------------
         sa_t_1, sa_t_2, r_t_1, r_t_2, labels = self.get_label(
-            sa_t_1, sa_t_2, r_t_1, r_t_2)
-        
+            sa_t_1, sa_t_2, r_t_1, r_t_2
+        )
+
+        # ----------------- Online latent InfoNCE update -----------------
+        if (
+            getattr(self, "latent_encoder", None) is not None and
+            getattr(self.cfg, "duo_stage3", "baseline") == "latent"
+        ):
+            labels_flat = labels.flatten()
+            valid_mask = labels_flat != -1   # drop ties
+            num_valid = int(valid_mask.sum())
+
+            if num_valid >= 2:
+                sa1_valid = sa_t_1[valid_mask]
+                sa2_valid = sa_t_2[valid_mask]
+                y_valid_np = labels_flat[valid_mask]
+
+                # encode with gradients
+                z1 = self.encode_segments_latent(sa1_valid, grad=True)
+                z2 = self.encode_segments_latent(sa2_valid, grad=True)
+
+                # build anchor / pos / neg from preference label
+                y_valid = torch.from_numpy(y_valid_np).long().to(self.latent_device)
+                mask_pos_seg2 = (y_valid == 1).unsqueeze(1)  # (B,1)
+
+                z_pos = torch.where(mask_pos_seg2, z2, z1)
+                z_neg = torch.where(mask_pos_seg2, z1, z2)
+                z_anchor = z_pos  # anchor = preferred seg
+
+                info_loss = self.train_latent_encoder(z_anchor, z_pos, z_neg)
+                print(f"[DUO] Latent InfoNCE step: loss={info_loss:.4f}, "
+                      f"valid_pairs={num_valid}")
+            else:
+                print("[DUO] Latent InfoNCE: not enough non-tie pairs this step")
+
+        # ----------------- Store labeled queries -----------------
         if len(labels) > 0:
             self.put_queries(sa_t_1, sa_t_2, labels)
-        
+
         return len(labels)
-    
+
+
+
+
+
     def train_reward(self):
         ensemble_losses = [[] for _ in range(self.de)]
         ensemble_acc = np.array([0 for _ in range(self.de)])

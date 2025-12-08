@@ -1,0 +1,36 @@
+nohup: ignoring input
+workspace: /home/kharshi/Active-Querying-on-PEBBLE
+project root: /home/kharshi/Active-Querying-on-PEBBLE
+workspace: /home/kharshi/Active-Querying-on-PEBBLE
+DEBUG: cfg.seed = 51234
+DEBUG: ENV SEED = None
+wandb: Currently logged in as: kharshi (kharshi-university-of-michigan) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: WARNING Using a boolean value for 'reinit' is deprecated. Use 'return_previous' or 'finish_previous' instead.
+wandb: Tracking run with wandb version 0.22.3
+wandb: Run data is saved locally in /home/kharshi/Active-Querying-on-PEBBLE/wandb/run-20251207_204240-yk05v8st
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run DUO_51234
+wandb: ⭐️ View project at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying
+wandb: 🚀 View run at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying/runs/yk05v8st
+[2025-12-07 20:42:40,957][absl][INFO] - MUJOCO_GL is not set, so an OpenGL backend will be chosen automatically.
+/home/kharshi/anaconda3/envs/rime2/lib/python3.9/site-packages/glfw/__init__.py:917: GLFWError: (65550) b'X11: The DISPLAY environment variable is missing'
+  warnings.warn(message, GLFWError)
+[2025-12-07 20:42:41,029][absl][INFO] - Successfully imported OpenGL backend: glfw
+[2025-12-07 20:42:41,177][absl][INFO] - MuJoCo library version is: 3.3.7
+/home/kharshi/anaconda3/envs/rime2/lib/python3.9/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+[LatentEncoder] Trying to load: /home/kharshi/Active-Querying-on-PEBBLE/latent_models/autoencoder.pth
+[LatentEncoder] Path exists? True
+[LatentEncoder] Detected flat keys in state_dict, adding 'net.' prefix to match LatentSegmentEncoder.
+[LatentEncoder] Loaded encoder from /home/kharshi/Active-Querying-on-PEBBLE/latent_models/autoencoder.pth
+[LatentEncoder] input_dim=1500, latent_dim=64, seg_len=50, feat_dim=30
+[LatentEncoder] Online training enabled
+[LatentEncoder] LR=0.001, Temp=0.1
+[LatentEncoder] After load, latent_encoder is None? -> False
+[DEBUG] step=1000 episode=1 ep_reward=-120.31 true_ep_reward=29.63
+[DEBUG] step=2000 episode=2 ep_reward=-27.07 true_ep_reward=13.22
+| train          | E: 2 | S: 2000 | R: -120.3056 | TR: 29.6306 | TF: 0 | LR: 0 | NR: 0 | D: 52.8 s | TD: 00.0 s | BR: -0.0957 | ALOSS: -129858.0287 | CLOSS: 414524414.1054 | TLOSS: -9.8416 | TVAL: 0.1200 | AENT: -81.6117 | BCLOSS: 0.0000
+[DEBUG] step=3000 episode=3 ep_reward=-46.66 true_ep_reward=22.98
+| train          | E: 3 | S: 3000 | R: -27.0665 | TR: 13.2201 | TF: 0 | LR: 0 | NR: 0 | D: 52.6 s | TD: 00.0 s | BR: -0.0730 | ALOSS: -1249622.5887 | CLOSS: 11891999483.9040 | TLOSS: -22.8098 | TVAL: 0.1835 | AENT: -128.9251 | BCLOSS: 0.0000
+[DEBUG] step=4000 episode=4 ep_reward=-112.80 true_ep_reward=48.05
+| train          | E: 4 | S: 4000 | R: -46.6557 | TR: 22.9838 | TF: 0 | LR: 0 | NR: 0 | D: 53.4 s | TD: 00.0 s | BR: -0.0654 | ALOSS: -1508881.7544 | CLOSS: 10589931453.6960 | TLOSS: -37.6880 | TVAL: 0.2767 | AENT: -143.5413 | BCLOSS: 0.0000

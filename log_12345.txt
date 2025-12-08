@@ -1,0 +1,89 @@
+nohup: ignoring input
+workspace: /home/kharshi/Active-Querying-on-PEBBLE
+project root: /home/kharshi/Active-Querying-on-PEBBLE
+workspace: /home/kharshi/Active-Querying-on-PEBBLE
+DEBUG: cfg.seed = 12345
+DEBUG: ENV SEED = None
+wandb: Currently logged in as: kharshi (kharshi-university-of-michigan) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: WARNING Using a boolean value for 'reinit' is deprecated. Use 'return_previous' or 'finish_previous' instead.
+wandb: Tracking run with wandb version 0.22.3
+wandb: Run data is saved locally in /home/kharshi/Active-Querying-on-PEBBLE/wandb/run-20251207_203719-deg35h5q
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run DUO_12345
+wandb: ⭐️ View project at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying
+wandb: 🚀 View run at https://wandb.ai/kharshi-university-of-michigan/BPref_Active_Querying/runs/deg35h5q
+[2025-12-07 20:37:20,122][absl][INFO] - MUJOCO_GL is not set, so an OpenGL backend will be chosen automatically.
+/home/kharshi/anaconda3/envs/rime2/lib/python3.9/site-packages/glfw/__init__.py:917: GLFWError: (65550) b'X11: The DISPLAY environment variable is missing'
+  warnings.warn(message, GLFWError)
+[2025-12-07 20:37:20,195][absl][INFO] - Successfully imported OpenGL backend: glfw
+[2025-12-07 20:37:20,353][absl][INFO] - MuJoCo library version is: 3.3.7
+/home/kharshi/anaconda3/envs/rime2/lib/python3.9/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+[LatentEncoder] Trying to load: /home/kharshi/Active-Querying-on-PEBBLE/latent_models/autoencoder.pth
+[LatentEncoder] Path exists? True
+[LatentEncoder] Detected flat keys in state_dict, adding 'net.' prefix to match LatentSegmentEncoder.
+[LatentEncoder] Loaded encoder from /home/kharshi/Active-Querying-on-PEBBLE/latent_models/autoencoder.pth
+[LatentEncoder] input_dim=1500, latent_dim=64, seg_len=50, feat_dim=30
+[LatentEncoder] Online training enabled
+[LatentEncoder] LR=0.001, Temp=0.1
+[LatentEncoder] After load, latent_encoder is None? -> False
+[DEBUG] step=1000 episode=1 ep_reward=107.01 true_ep_reward=33.50
+[DEBUG] step=2000 episode=2 ep_reward=45.40 true_ep_reward=16.47
+| train          | E: 2 | S: 2000 | R: 107.0076 | TR: 33.5011 | TF: 0 | LR: 0 | NR: 0 | D: 22.9 s | TD: 00.0 s | BR: 0.0918 | ALOSS: -125829.2891 | CLOSS: 503111995.6376 | TLOSS: -7.0665 | TVAL: 0.1196 | AENT: -61.7321 | BCLOSS: 0.0000
+[DEBUG] step=3000 episode=3 ep_reward=137.45 true_ep_reward=87.59
+| train          | E: 3 | S: 3000 | R: 45.3970 | TR: 16.4673 | TF: 0 | LR: 0 | NR: 0 | D: 24.0 s | TD: 00.0 s | BR: 0.0842 | ALOSS: -408574.3733 | CLOSS: 1557736209.2480 | TLOSS: -20.2742 | TVAL: 0.1864 | AENT: -114.5768 | BCLOSS: 0.0000
+[DEBUG] step=4000 episode=4 ep_reward=106.26 true_ep_reward=54.78
+| train          | E: 4 | S: 4000 | R: 137.4489 | TR: 87.5923 | TF: 0 | LR: 0 | NR: 0 | D: 24.4 s | TD: 00.0 s | BR: 0.0952 | ALOSS: -193216.2359 | CLOSS: 271346276.3600 | TLOSS: -25.5209 | TVAL: 0.2751 | AENT: -100.1975 | BCLOSS: 0.0000
+[DEBUG] step=5000 episode=5 ep_reward=165.37 true_ep_reward=111.71
+| train          | E: 5 | S: 5000 | R: 106.2618 | TR: 54.7816 | TF: 0 | LR: 0 | NR: 0 | D: 22.9 s | TD: 00.0 s | BR: 0.1062 | ALOSS: -48510.6783 | CLOSS: 46912929.5490 | TLOSS: -23.9808 | TVAL: 0.3761 | AENT: -70.0044 | BCLOSS: 0.0000
+[DEBUG] step=6000 episode=6 ep_reward=155.81 true_ep_reward=92.70
+| train          | E: 6 | S: 6000 | R: 165.3726 | TR: 111.7061 | TF: 0 | LR: 0 | NR: 0 | D: 23.3 s | TD: 00.0 s | BR: 0.1171 | ALOSS: -23212.6367 | CLOSS: 11129101.6175 | TLOSS: -24.6922 | TVAL: 0.5125 | AENT: -54.5512 | BCLOSS: 0.0000
+[DEBUG] step=7000 episode=7 ep_reward=133.42 true_ep_reward=48.52
+| train          | E: 7 | S: 7000 | R: 155.8069 | TR: 92.7031 | TF: 0 | LR: 0 | NR: 0 | D: 27.5 s | TD: 00.0 s | BR: 0.1201 | ALOSS: -16892.0614 | CLOSS: 6552099.2485 | TLOSS: -21.8022 | TVAL: 0.6859 | AENT: -38.1079 | BCLOSS: 0.0000
+[DEBUG] step=8000 episode=8 ep_reward=60.09 true_ep_reward=47.46
+| train          | E: 8 | S: 8000 | R: 133.4220 | TR: 48.5165 | TF: 0 | LR: 0 | NR: 0 | D: 27.8 s | TD: 00.0 s | BR: 0.1177 | ALOSS: -11213.1888 | CLOSS: 2827153.1264 | TLOSS: -18.3585 | TVAL: 0.8925 | AENT: -26.7098 | BCLOSS: 0.0000
+[DEBUG] step=9000 episode=9 ep_reward=70.85 true_ep_reward=65.63
+| train          | E: 9 | S: 9000 | R: 60.0855 | TR: 47.4599 | TF: 0 | LR: 0 | NR: 0 | D: 24.9 s | TD: 00.0 s | BR: 0.1124 | ALOSS: -87981.8163 | CLOSS: 99805565.5440 | TLOSS: -36.1734 | TVAL: 1.2495 | AENT: -34.5670 | BCLOSS: 0.0000
+[DEBUG] step=10000 episode=10 ep_reward=117.89 true_ep_reward=91.60
+| train          | E: 10 | S: 10000 | R: 70.8546 | TR: 65.6300 | TF: 0 | LR: 0 | NR: 0 | D: 33.8 s | TD: 00.0 s | BR: 0.1115 | ALOSS: -97724.0812 | CLOSS: 70840508.4430 | TLOSS: -41.3095 | TVAL: 1.8480 | AENT: -28.7096 | BCLOSS: 0.0000
+Starting evaluation at step 10000
+cuda
+| eval           | E: 10 | S: 10000 | R: 27.6431 | TR: 27.6431 | TS: 0.0000
+[DEBUG] Finished evaluation at step 10000
+[DEBUG] cfg.feed_type = 6
+[DEBUG] feed_type at runtime: 6
+[DEBUG] Using duo_sampling for feed_type==6
+Running Duo sampling...
+mode is: latent
+latent_encoder is None? -> False
+latent_encoder object: LatentSegmentEncoder(
+  (net): Sequential(
+    (0): Linear(in_features=1500, out_features=512, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=512, out_features=256, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=256, out_features=64, bias=True)
+  )
+)
+[DUO] Stage3 using LATENT features
+z1 shape:  torch.Size([100, 64])
+z2 shape:  torch.Size([100, 64])
+u shape:  torch.Size([100, 192])
+cos_sim shape:  torch.Size([100, 1])
+[DUO] adaptive_kmeans selected K=23, from 100 candidates
+[LatentEncoder] InfoNCE loss=0.0037
+[LatentEncoder] Updated encoder weights
+[DUO] Latent InfoNCE step: loss=0.0037, valid_pairs=20
+Reward function is updated!! ACC: 0.9710144927536232
+[DEBUG] step=11000 episode=11 ep_reward=110.20 true_ep_reward=40.17
+| train          | E: 11 | S: 11000 | R: 117.8924 | TR: 91.6031 | TF: 0 | LR: 0 | NR: 0 | D: 40.5 s | TD: 00.0 s | BR: 0.1116 | ALOSS: -12.4118 | CLOSS: 28.7136 | TLOSS: 18.2954 | TVAL: 1.9793 | AENT: 3.2655 | BCLOSS: 0.0000
+[DEBUG] step=12000 episode=12 ep_reward=78.26 true_ep_reward=37.54
+| train          | E: 12 | S: 12000 | R: 110.1981 | TR: 40.1681 | TF: 23 | LR: 23 | NR: 0 | D: 21.2 s | TD: 00.0 s | BR: 0.1099 | ALOSS: -22.5884 | CLOSS: 4.5427 | TLOSS: 15.9738 | TVAL: 1.6283 | AENT: 3.8129 | BCLOSS: 0.0000
+[DEBUG] step=13000 episode=13 ep_reward=89.24 true_ep_reward=30.34
+| train          | E: 13 | S: 13000 | R: 78.2587 | TR: 37.5360 | TF: 23 | LR: 23 | NR: 0 | D: 32.6 s | TD: 00.0 s | BR: 0.1076 | ALOSS: -31.0814 | CLOSS: 2.4151 | TLOSS: 13.0611 | TVAL: 1.3167 | AENT: 3.9202 | BCLOSS: 0.0000
+[DEBUG] step=14000 episode=14 ep_reward=72.33 true_ep_reward=45.59
+| train          | E: 14 | S: 14000 | R: 89.2378 | TR: 30.3429 | TF: 23 | LR: 23 | NR: 0 | D: 46.2 s | TD: 00.0 s | BR: 0.1062 | ALOSS: -38.2388 | CLOSS: 1.6681 | TLOSS: 10.5291 | TVAL: 1.0576 | AENT: 3.9564 | BCLOSS: 0.0000
+[DEBUG] step=15000 episode=15 ep_reward=85.21 true_ep_reward=38.38
+| train          | E: 15 | S: 15000 | R: 72.3270 | TR: 45.5861 | TF: 23 | LR: 23 | NR: 0 | D: 47.0 s | TD: 00.0 s | BR: 0.1042 | ALOSS: -44.1987 | CLOSS: 1.3700 | TLOSS: 8.4474 | TVAL: 0.8471 | AENT: 3.9721 | BCLOSS: 0.0000
+[DEBUG] step=16000 episode=16 ep_reward=92.55 true_ep_reward=29.86
+| train          | E: 16 | S: 16000 | R: 85.2088 | TR: 38.3847 | TF: 23 | LR: 23 | NR: 0 | D: 46.2 s | TD: 00.0 s | BR: 0.1024 | ALOSS: -48.7732 | CLOSS: 1.1988 | TLOSS: 6.7581 | TVAL: 0.6779 | AENT: 3.9695 | BCLOSS: 0.0000

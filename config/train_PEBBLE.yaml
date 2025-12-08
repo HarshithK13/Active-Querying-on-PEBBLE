@@ -15,7 +15,7 @@ num_interact: 5000
 reward_lr: 0.0003
 reward_batch: 128
 reward_update: 200
-feed_type: null
+feed_type: 6
 reset_update: 100
 topK: 5
 ensemble_size: 3
@@ -27,7 +27,9 @@ teacher_gamma: 1
 teacher_eps_mistake: 0
 teacher_eps_skip: 0
 teacher_eps_equal: 0
+duo_stage3: "latent"
 
+duo_reward_lambda: 0.5 
 # scheduling
 reward_schedule: 0
 
@@ -37,7 +39,7 @@ replay_buffer_capacity: ${num_train_steps}
 # evaluation config
 eval_frequency: 10000
 num_eval_episodes: 10
-device: cpu
+device: cuda
 
 # logger
 log_frequency: 10000
